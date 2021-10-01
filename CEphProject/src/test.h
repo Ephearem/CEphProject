@@ -209,6 +209,12 @@ EXPECT(value, NULL)
 #define EXPECT_NOT_NULL(value) \
 EXPECT(value == NULL, 0)
 
+#define EXPECT_ZERO(value) \
+EXPECT(value, 0)
+
+#define EXPECT_NOT_ZERO(value) \
+EXPECT(value == 0, 0)
+
 #define FORCE_FAIL_TEST \
 do \
 { \
