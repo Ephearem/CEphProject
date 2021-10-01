@@ -292,10 +292,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="adds\GLAD\src\glad.c" />
+    <ClCompile Include="src\core\loop.c" />
     <ClCompile Include="src\core\window.c" />
     <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\loop.h" />
     <ClInclude Include="src\core\window.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\test.h" />

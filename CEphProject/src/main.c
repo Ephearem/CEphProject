@@ -10,10 +10,24 @@
 -----------------------------------------------------------------------------**/
 
 #include "core/window.h"
+#include "core/loop.h"
 
 
 
 /** @functions  ------------------------------------------------------------**/
+
+/**-----------------------------------------------------------------------------
+; @func loop_iteration_callback
+;
+; @brief
+;   This function is called at every tick of the main loop.
+;
+-----------------------------------------------------------------------------**/
+void loop_iteration_callback(void)
+{
+
+}
+
 
 /**-----------------------------------------------------------------------------
 ; @func main
@@ -26,6 +40,7 @@
 int main(int argc, char* argv[], char* envp[])
 {
     init_window("CEphProject", 800, 600, 0, 0);
+    start_loop(loop_iteration_callback);
 
     return 0;
 }
