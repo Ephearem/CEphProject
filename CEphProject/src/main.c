@@ -9,11 +9,11 @@
 ;
 -----------------------------------------------------------------------------**/
 
+#include "core/window.h"
+
 
 
 /** @functions  ------------------------------------------------------------**/
-
-#ifndef TEST_RUN
 
 /**-----------------------------------------------------------------------------
 ; @func main
@@ -22,50 +22,11 @@
 ;   Entry point.
 ;
 -----------------------------------------------------------------------------**/
+#ifndef TEST_RUN
 int main(int argc, char* argv[], char* envp[])
 {
+    init_window("CEphProject", 800, 600, 0, 0);
 
     return 0;
 }
-
-#endif
-
-
-
-/**@tests--------------------------------------------------------------------**/
-//#define TEST_RUN
-//#define MAIN_TEST
-
-#ifdef TEST_RUN
-#ifdef MAIN_TEST
-
-#include "test.h"
-
-
-/**-----------------------------------------------------------------------------
-; @unit_test
-;
-; @brief
-;   Verifies that the 'determine_parent_directory' function returns correct
-;   values, does not change the state of the incoming variable and does not hang
-;   the program when called with invalid/NULL arguments.
------------------------------------------------------------------------------**/
-TEST_BEGIN(test_main)
-{
-    EXPECT(1, 1);
-    EXPECT_NULL(NULL);
-    EXPECT_NOT_NULL(123);
-    EXPECT_NULL(5);
-
-    TEST_END
-}
-
-
-RUN_TESTS
-(
-    test_main
-)
-
-
-#endif
-#endif
+#endif /* !TEST_RUN */
