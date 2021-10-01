@@ -6,14 +6,23 @@
 
 
 
+/** @static_data -------------------------------------------------------------*/
+static float _tick_count = 0.0f;
+static float _frame_time = 0.0f;
+
+
+
 /** @internal_prototypes -----------------------------------------------------*/
 void _stubbed_loop_iteration_callback(void);
-
+float _calc_fps(float period);
 
 
 /** @functions ---------------------------------------------------------------*/
 void start_loop(void(*loop_iteration_callback_ptr)(void))
 {
+    extern float _tick_count;
+    extern float _frame_time;
+
     if (NULL == loop_iteration_callback_ptr)
     {
         // TODO: Check executable permissions, prologue bytes or canaries.
@@ -25,6 +34,13 @@ void start_loop(void(*loop_iteration_callback_ptr)(void))
 
     while (!glfwWindowShouldClose(get_glfw_window_ptr()))
     {
+        /* Sync */
+        static float prev_tick_count = 0.0f;
+        _tick_count = (float)glfwGetTime();
+        _frame_time = _tick_count - prev_tick_count;
+        prev_tick_count = _tick_count;
+        _calc_fps(1.0f);
+
         /* Specify clear values for the color buffer */
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -46,7 +62,46 @@ void start_loop(void(*loop_iteration_callback_ptr)(void))
 }
 
 
+float get_tick_count(void)
+{
+    extern float _tick_count;
+    return _tick_count;
+}
+
+
+float get_frame_time(void)
+{
+    extern float _frame_time;
+    return _frame_time;
+}
+
+
 void _stubbed_loop_iteration_callback(void)
 {
 
+}
+
+
+float _calc_fps(float period)
+{
+    extern float _frame_time;
+
+    static float result = 0.0f;
+
+    static float time_since_last_update = 0.0;
+    static unsigned int ticks_since_last_update = 0;
+    time_since_last_update += _frame_time;
+    ticks_since_last_update++;
+
+    if (time_since_last_update >= period)
+    {
+        float extra_time = time_since_last_update - period;
+        result = (ticks_since_last_update + extra_time) /
+            time_since_last_update;
+        // glfwSetWindowTitle
+        ticks_since_last_update = 0;
+        time_since_last_update = 0.0;
+        LOG_MSG("%f", result);
+    }
+    return result;
 }
