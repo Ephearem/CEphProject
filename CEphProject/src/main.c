@@ -15,6 +15,7 @@
 #include "core/window.h"
 #include "core/loop.h"
 #include "core/graphics/shaders.h"
+#include "core/graphics/image.h"
 
 
 
@@ -126,6 +127,9 @@ int main(int argc, char* argv[], char* envp[])
                                         /* ('vertex_array') object.           */
     glBindVertexArray(vertex_array);
 
+
+    const stImage* img_ptr = load_image("resources/img/512x512_transp.png");
+    free_image(img_ptr);
 
 
     start_loop(loop_iteration_callback);
