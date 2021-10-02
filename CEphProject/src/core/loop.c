@@ -13,8 +13,8 @@ static float _frame_time = 0.0f;
 
 
 /** @internal_prototypes -----------------------------------------------------*/
-void _stubbed_loop_iteration_callback(void);
-float _calc_fps(float period);
+static void _stubbed_loop_iteration_callback(void);
+static float _calc_fps(float period);
 
 
 /** @functions ---------------------------------------------------------------*/
@@ -76,13 +76,13 @@ float get_frame_time(void)
 }
 
 
-void _stubbed_loop_iteration_callback(void)
+static void _stubbed_loop_iteration_callback(void)
 {
 
 }
 
 
-float _calc_fps(float period)
+static float _calc_fps(float period)
 {
     extern float _frame_time;
 

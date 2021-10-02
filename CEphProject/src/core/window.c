@@ -14,7 +14,7 @@ static int _height;
 
 
 /** @internal_prototypes -----------------------------------------------------*/
-void _glfw_error_callback(int code, const char* message);
+static void _glfw_error_callback(int code, const char* message);
 
 
 
@@ -100,7 +100,7 @@ int get_window_height(void)
 }
 
 
-void _glfw_error_callback(int code, const char* message)
+static void _glfw_error_callback(int code, const char* message)
 {
     LOG_ERROR("%d. %s.", code, message);
     glfwTerminate();
