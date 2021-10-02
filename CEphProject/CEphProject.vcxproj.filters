@@ -30,6 +30,9 @@
     <ClCompile Include="src\core\graphics\shaders.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\graphics\image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\test.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\graphics\shaders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\graphics\image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
