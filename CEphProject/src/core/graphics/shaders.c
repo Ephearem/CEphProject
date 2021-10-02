@@ -1,3 +1,9 @@
+// TODO: Place the result of 'glGetUniformLocation' for each uniform in map.
+//       On subsequent calls to this variable, take the value from map. This
+//       will reduce the number of calls to the GPU.
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -81,6 +87,42 @@ void use_shader_program(unsigned int shader_program)
 {
     glUseProgram(shader_program);
 }
+
+
+void set_shader_uf_int(unsigned int shader_program, const char* name, int value)
+{
+    int uniform_location = glGetUniformLocation(shader_program, name);
+    glUniform1i(uniform_location, value);
+}
+
+
+void set_shader_uf_float(unsigned int shader_program, const char* name, float value)
+{
+    int uniform_location = glGetUniformLocation(shader_program, name);
+    glUniform1f(uniform_location, value);
+}
+
+
+void set_shader_uf_vec2(unsigned int shader_program, const char* name, vec2 value)
+{
+    int uniform_location = glGetUniformLocation(shader_program, name);
+    glUniform2fv(uniform_location, 1, value);
+}
+
+
+void set_shader_uf_vec3(unsigned int shader_program, const char* name, vec3 value)
+{
+    int uniform_location = glGetUniformLocation(shader_program, name);
+    glUniform3fv(uniform_location, 1, value);
+}
+
+
+void set_shader_uf_mat4(unsigned int shader_program, const char* name, mat4 value)
+{
+    int uniform_location = glGetUniformLocation(shader_program, name);
+    glUniformMatrix4fv(uniform_location, 1, GL_FALSE, value);
+}
+
 
 
 static unsigned int _compile_shader(const char* shader_source,
