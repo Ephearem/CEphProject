@@ -57,5 +57,7 @@
   <ItemGroup>
     <None Include="resources\shaders\default_fragment.shader" />
     <None Include="resources\shaders\default_vertex.shader" />
+    <None Include="resources\shaders\txd_array_vertex.shader" />
+    <None Include="resources\shaders\txd_array_fragment.shader" />
   </ItemGroup>
 </Project>

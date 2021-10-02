@@ -48,19 +48,18 @@ int main(int argc, char* argv[], char* envp[])
 
 
     unsigned int shader_program = create_shader_program(
-        "resources/shaders/default_vertex.shader",
-        "resources/shaders/default_fragment.shader");
+        "resources/shaders/txd_array_vertex.shader",
+        "resources/shaders/txd_array_fragment.shader");
 
     use_shader_program(shader_program);
 
-
     /* Set up vertices and indices data */
-    float vertices[] =                  
+    float vertices[] =
     {
-         0.5f,  0.5f,                   /* Top right                          */
-         0.5f, -0.5f,                   /* Bottom right                       */
-        -0.5f, -0.5f,                   /* Bottom left                        */
-        -0.5f,  0.5f,                   /* Top left                           */
+         0.5f,  0.5f, 1.0f, 1.0f,       /* Top right                          */
+         0.5f, -0.5f, 1.0f, 0.0f,       /* Bottom right                       */
+        -0.5f, -0.5f, 0.0f, 0.0f,       /* Bottom left                        */
+        -0.5f,  0.5f, 0.0f, 1.0f        /* Top left                           */
     };
     unsigned int indices[] =
     {
@@ -106,10 +105,17 @@ int main(int argc, char* argv[], char* envp[])
                                         /* GL_ELEMENT_ARRAY_BUFFER (i.e. into */
                                         /* 'indices_buffer')                  */
 
-    glBindVertexBuffer(0, vertex_buffer, 0, sizeof(GLfloat) * 2);
+    glBindVertexBuffer(0, vertex_buffer, 0, sizeof(GLfloat) * 4);
                                         /* Bind 'vertex_buffer' to            */
                                         /* 'vertex_array' at index 0.         */
+
+    glBindVertexBuffer(1, vertex_buffer, sizeof(GLfloat) * 2,
+        sizeof(GLfloat) * 4);           /* Bind 'vertex_buffer' to            */
+                                        /* 'vertex_array' at index 0.         */
+
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);   /* 'vertex_buffer' can be safely      */
                                         /* unbind since it is bound to        */
                                         /* 'vertex_array' as the vertex       */
@@ -128,8 +134,96 @@ int main(int argc, char* argv[], char* envp[])
     glBindVertexArray(vertex_array);
 
 
-    const stImage* img_ptr = load_image("resources/img/512x512_transp.png");
-    free_image(img_ptr);
+    unsigned int texture_2d_array;
+    glGenTextures(1, &texture_2d_array);
+                                        /* Generate a 2d texture array        */
+                                        /* object                             */
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_2d_array);
+                                        /* Set 'texture_2d_array' as the      */
+                                        /* current vertex array object.       */
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage3D(
+        GL_TEXTURE_2D_ARRAY,            /* target to which the texture is     */
+                                        /* bound                              */
+        0,                              /* level                              */
+        GL_RGBA8,                       /* Internal format                    */
+        (GLsizei)512,                   /* Width of the 2d texture array      */
+        (GLsizei)512,                   /* Heigh of the 2d texture array      */
+        (GLsizei)2,                     /* Depth of the 2d texture array      */
+        0,                              /* Border, must be 0.                 */
+        GL_RGBA,                        /* Format of the pixel data           */
+        GL_UNSIGNED_BYTE,               /* Data type of the pixel data        */
+        NULL);                          /* A pointer to the image data        */
+
+
+    const stImage* img_1 = load_image("resources/img/512x512_transp.png");
+    const stImage* img_2 = load_image("resources/img/256x256.jpg");
+
+                                        /* Add texture to the 0th layer of    */
+                                        /* the 2d texture array               */
+
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 512);
+                                        /* The full width of the image from   */
+                                        /* which the texture is created       */
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+                                        /* Subtexture x-offset (from the      */
+                                        /* beginning of the image).           */
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+                                        /* Subtexture y-offset (from the      */
+                                        /* beginning of the image).           */
+    glTexSubImage3D(
+        GL_TEXTURE_2D_ARRAY,            /* target to which the texture is     */
+                                        /* bound                              */
+        0,                              /* Level-of-detail. 0 - base image    */
+        0,                              /* x-offset within the texture array  */
+        0,                              /* y offset within the texture array  */
+        0,                              /* z offset (layer)                   */
+        (GLsizei)256,                   /* width of the texture subimage      */
+        (GLsizei)512,                   /* height of the texture subimage     */
+        1,                              /* depth of the texture subimage      */
+        GL_RGBA,                        /* Format of the pixel data           */
+        GL_UNSIGNED_BYTE,               /* Data type of the pixel data        */
+        (const void*)img_1->data_ptr);  /* A pointer to the image data        */
+
+
+                                        /* Add texture to the 1st layer of    */
+                                        /* the 2d texture array               */
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_2d_array);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+    glTexSubImage3D(
+        GL_TEXTURE_2D_ARRAY,
+        0,
+        256,
+        256,                            /* The offset is calculated from the  */
+                                        /* bottom of the texture. For it to   */
+                                        /* be considered from the top, need   */
+                                        /* to swap the vertices related to    */
+                                        /* the texture in the 'vertices'      */
+                                        /* array.                             */
+        // TODO: Check out the comment posted above because I don't remember
+        //       exactly :)
+        0,
+        (GLsizei)256,
+        (GLsizei)256,
+        1,
+        GL_RGB,                         /* There are only 3 channels in this  */
+                                        /* .jpg image                         */
+        GL_UNSIGNED_BYTE,
+        (const void*)img_2->data_ptr);
+
+    free_image(img_1);
+    free_image(img_2);
+
+    set_shader_uf_int(shader_program, "uf_txd_array_z_offset", 0);
+    set_shader_uf_int(shader_program, "uf_txd_unit", 0);
 
 
     start_loop(loop_iteration_callback);
@@ -138,6 +232,7 @@ int main(int argc, char* argv[], char* envp[])
     glDeleteVertexArrays(1, &vertex_array);
     glDeleteBuffers(1, &vertex_buffer);
     glDeleteBuffers(1, &indices_buffer);
+    glDeleteTextures(1, &texture_2d_array);
 
     return 0;
 }
