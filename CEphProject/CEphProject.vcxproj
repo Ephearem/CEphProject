@@ -292,6 +292,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="adds\GLAD\src\glad.c" />
+    <ClCompile Include="src\containers\list.c" />
     <ClCompile Include="src\core\graphics\image.c" />
     <ClCompile Include="src\core\graphics\shaders.c" />
     <ClCompile Include="src\core\loop.c" />
@@ -300,6 +301,7 @@
     <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\containers\list.h" />
     <ClInclude Include="src\core\graphics\image.h" />
     <ClInclude Include="src\core\graphics\shaders.h" />
     <ClInclude Include="src\core\loop.h" />
