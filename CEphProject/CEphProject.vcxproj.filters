@@ -33,6 +33,9 @@
     <ClCompile Include="src\core\graphics\image.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\memory.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\test.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\graphics\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
