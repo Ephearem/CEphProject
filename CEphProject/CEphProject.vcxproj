@@ -295,6 +295,7 @@
     <ClCompile Include="src\containers\list.c" />
     <ClCompile Include="src\core\graphics\image.c" />
     <ClCompile Include="src\core\graphics\shaders.c" />
+    <ClCompile Include="src\core\graphics\texture\square.c" />
     <ClCompile Include="src\core\loop.c" />
     <ClCompile Include="src\core\memory.c" />
     <ClCompile Include="src\core\window.c" />
@@ -304,6 +305,7 @@
     <ClInclude Include="src\containers\list.h" />
     <ClInclude Include="src\core\graphics\image.h" />
     <ClInclude Include="src\core\graphics\shaders.h" />
+    <ClInclude Include="src\core\graphics\texture\square.h" />
     <ClInclude Include="src\core\loop.h" />
     <ClInclude Include="src\core\memory.h" />
     <ClInclude Include="src\core\window.h" />
