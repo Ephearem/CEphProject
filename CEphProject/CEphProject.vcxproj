@@ -293,6 +293,7 @@
   <ItemGroup>
     <ClCompile Include="adds\GLAD\src\glad.c" />
     <ClCompile Include="src\containers\list.c" />
+    <ClCompile Include="src\containers\map.c" />
     <ClCompile Include="src\core\graphics\image.c" />
     <ClCompile Include="src\core\graphics\shaders.c" />
     <ClCompile Include="src\core\graphics\texture\square.c" />
@@ -304,6 +305,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\containers\list.h" />
+    <ClInclude Include="src\containers\map.h" />
     <ClInclude Include="src\core\graphics\image.h" />
     <ClInclude Include="src\core\graphics\shaders.h" />
     <ClInclude Include="src\core\graphics\texture\square.h" />
