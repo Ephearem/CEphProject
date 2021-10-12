@@ -19,7 +19,7 @@ typedef struct list_node
 
 
 
-//list_node* list_create(void);
+list_node* list_create(void);
 void list_push(list_node* root, void* data);
 void list_cleanup(list_node* root);
 int list_get_size(list_node* root);

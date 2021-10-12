@@ -4,10 +4,10 @@
 
 
 
-//list_node* list_create(void)
-//{
-//    return (list_node*)calloc(1, sizeof(list_node));
-//}
+list_node* list_create(void)
+{
+    return (list_node*)calloc(1, sizeof(list_node));
+}
 
 
 void list_push(list_node* root, void* data)
