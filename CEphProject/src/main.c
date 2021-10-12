@@ -20,11 +20,18 @@
 #include "core/graphics/shaders.h"
 #include "core/graphics/texture/texture_builder.h"
 
+#include "containers/map.h"
 
 
 stTexture* t1 = NULL;
 stTexture* t2 = NULL;
 stTexture* t3 = NULL;
+stTexture* t4 = NULL;
+stTexture* t5 = NULL;
+stTexture* t6 = NULL;
+stTexture* t7 = NULL;
+stTexture* t8 = NULL;
+stTexture* t9 = NULL;
 
 
 
@@ -49,7 +56,7 @@ void loop_iteration_callback(void)
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
-        vec2 pos = { 200.0f, 200.0f };
+        vec2 pos = { 000.0f, 160.0f };
         set_shader_uf_vec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
         set_shader_uf_vec2(3, "uf_model_size", size);
@@ -58,7 +65,7 @@ void loop_iteration_callback(void)
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
-        vec2 pos = { 400.0f, 400.0f };
+        vec2 pos = { 000.0f, 320.0f };
         set_shader_uf_vec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
         set_shader_uf_vec2(3, "uf_model_size", size);
@@ -66,7 +73,60 @@ void loop_iteration_callback(void)
         set_shader_uf_int(3, "uf_txd_unit", t3->texture_info_ptr->unit - GL_TEXTURE0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
-
+    {
+        vec2 pos = { 160.0f, 000.0f };
+        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        vec2 size = { 150.0f, 150.0f };
+        set_shader_uf_vec2(3, "uf_model_size", size);
+        set_shader_uf_int(3, "uf_txd_array_z_offset", t4->texture_info_ptr->z_offset);
+        set_shader_uf_int(3, "uf_txd_unit", t4->texture_info_ptr->unit - GL_TEXTURE0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    {
+        vec2 pos = { 160.0f, 160.0f };
+        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        vec2 size = { 150.0f, 150.0f };
+        set_shader_uf_vec2(3, "uf_model_size", size);
+        set_shader_uf_int(3, "uf_txd_array_z_offset", t5->texture_info_ptr->z_offset);
+        set_shader_uf_int(3, "uf_txd_unit", t5->texture_info_ptr->unit - GL_TEXTURE0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    {
+        vec2 pos = { 160.0f, 320.0f };
+        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        vec2 size = { 150.0f, 150.0f };
+        set_shader_uf_vec2(3, "uf_model_size", size);
+        set_shader_uf_int(3, "uf_txd_array_z_offset", t6->texture_info_ptr->z_offset);
+        set_shader_uf_int(3, "uf_txd_unit", t6->texture_info_ptr->unit - GL_TEXTURE0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    {
+        vec2 pos = { 320.0f, 000.0f };
+        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        vec2 size = { 150.0f, 150.0f };
+        set_shader_uf_vec2(3, "uf_model_size", size);
+        set_shader_uf_int(3, "uf_txd_array_z_offset", t7->texture_info_ptr->z_offset);
+        set_shader_uf_int(3, "uf_txd_unit", t7->texture_info_ptr->unit - GL_TEXTURE0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    {
+        vec2 pos = { 320.0f, 160.0f };
+        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        vec2 size = { 150.0f, 150.0f };
+        set_shader_uf_vec2(3, "uf_model_size", size);
+        set_shader_uf_int(3, "uf_txd_array_z_offset", t8->texture_info_ptr->z_offset);
+        set_shader_uf_int(3, "uf_txd_unit", t8->texture_info_ptr->unit - GL_TEXTURE0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    {
+        vec2 pos = { 320.0f, 320.0f };
+        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        vec2 size = { 150.0f, 150.0f };
+        set_shader_uf_vec2(3, "uf_model_size", size);
+        set_shader_uf_int(3, "uf_txd_array_z_offset", t9->texture_info_ptr->z_offset);
+        set_shader_uf_int(3, "uf_txd_unit", t9->texture_info_ptr->unit - GL_TEXTURE0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
 }
 
 
@@ -82,6 +142,11 @@ int main(int argc, char* argv[], char* envp[])
 {
     init_window("CEphProject", 800, 600, 0, 0);
 
+    /*map_item map[] = {
+        {"str1", 1}, {"str2", 2}, {"str3", 3}, {"str4", 4},
+        {"str5", 5}, {"str6", 6}, {"str7", 7}, {"str8", 8}
+    };*/
+
 
     unsigned int shader_program = create_shader_program(
         "resources/shaders/txd_array_vertex.shader",
@@ -89,17 +154,28 @@ int main(int argc, char* argv[], char* envp[])
 
     use_shader_program(shader_program);
 
-    t1 = tb_add_texture("resources/img/512x512_transp.png", 0, 0, 512, 512);
-    t2 = tb_add_texture("resources/img/256x256.jpg", 0, 0, 256, 256);
-    t3 = tb_add_texture("resources/img/512x512_transp.png", 128, 128, 384, 384);
-
+    /* The next 3 textures will be placed on any free space of any layer of any
+       2d texture array */
+    t1 = tb_add_texture(TB_NO_GROUP, "resources/img/512x512_transp.png", 0, 0, 512, 512);
+    t2 = tb_add_texture(TB_NO_GROUP, "resources/img/256x256.jpg", 0, 0, 256, 256);
+    t3 = tb_add_texture(TB_NO_GROUP, "resources/img/256x256.jpg", 128, 128, 128, 128);
+    /* The next 3 textures are guaranteed to be placed on the same layer */
+    t4 = tb_add_texture(1, "resources/img/512x512_transp.png", 0, 0, 256, 256);
+    t5 = tb_add_texture(1, "resources/img/512x512_transp.png", 128, 0, 256, 256);
+    t6 = tb_add_texture(1, "resources/img/512x512_transp.png", 256, 0, 256, 256);
+    /* The next 3 textures are guaranteed to be placed on the same layer */
+    t7 = tb_add_texture(2, "resources/img/512x512_transp.png", 0, 256, 256, 256);
+    t8 = tb_add_texture(2, "resources/img/512x512_transp.png", 128, 256, 256, 256);
+    t9 = tb_add_texture(2, "resources/img/512x512_transp.png", 256, 256, 256, 256);
+    /* The next 100 textures will be placed on any free space of any layer of
+       any 2d texture array */
     for (int i = 0; i < 100; i++)
     {
-        tb_add_texture("resources/img/512x512_transp.png",
+        tb_add_texture(0, "resources/img/512x512_transp.png",
             rand() % 449, rand() % 449, 1 + rand() % 62, 1 + rand() % 62);
     }
     tb_build();
-    
+
     /* Set up vertices and indices data */
     float vertices[] =
     {
@@ -141,35 +217,35 @@ int main(int argc, char* argv[], char* envp[])
                                         /* vertex array object.               */
 
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-                                        /* Bind 'vertex_buffer' to            */
-                                        /* GL_ARRAY_BUFFER. All following     */
-                                        /* calls to GL_ARRAY_BUFFER will      */
-                                        /* refer to this 'vertex_buffer'      */
-                                        /* object.                            */
+    /* Bind 'vertex_buffer' to            */
+    /* GL_ARRAY_BUFFER. All following     */
+    /* calls to GL_ARRAY_BUFFER will      */
+    /* refer to this 'vertex_buffer'      */
+    /* object.                            */
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-                                        /* Put data from 'vertices' into      */
-                                        /* GL_ARRAY_BUFFER (i.e. into         */
-                                        /* 'vertex_buffer')                   */
+    /* Put data from 'vertices' into      */
+    /* GL_ARRAY_BUFFER (i.e. into         */
+    /* 'vertex_buffer')                   */
 
     glBindBuffer(GL_ARRAY_BUFFER, txd_vertex_buffer);
-                                        /* Bind 'vertex_buffer' to            */
-                                        /* GL_ARRAY_BUFFER. All following     */
-                                        /* calls to GL_ARRAY_BUFFER will      */
-                                        /* refer to this 'vertex_buffer'      */
-                                        /* object.                            */
+    /* Bind 'vertex_buffer' to            */
+    /* GL_ARRAY_BUFFER. All following     */
+    /* calls to GL_ARRAY_BUFFER will      */
+    /* refer to this 'vertex_buffer'      */
+    /* object.                            */
     glBufferData(GL_ARRAY_BUFFER, sizeof(txd_vertices), txd_vertices,
         GL_STATIC_DRAW);
-                                        /* Put data from 'txd_vertices' into  */
-                                        /* GL_ARRAY_BUFFER (i.e. into         */
-                                        /* 'txd_vertex_buffer'                */
+    /* Put data from 'txd_vertices' into  */
+    /* GL_ARRAY_BUFFER (i.e. into         */
+    /* 'txd_vertex_buffer'                */
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_buffer);
-                                        /* Bind 'vertex_buffer' to            */
-                                        /* GL_ELEMENT_ARRAY_BUFFER. All       */
-                                        /* following calls to                 */
-                                        /* GL_ELEMENT_ARRAY_BUFFER will refer */
-                                        /* to this 'indices_buffer' object.   */
+    /* Bind 'vertex_buffer' to            */
+    /* GL_ELEMENT_ARRAY_BUFFER. All       */
+    /* following calls to                 */
+    /* GL_ELEMENT_ARRAY_BUFFER will refer */
+    /* to this 'indices_buffer' object.   */
 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
         GL_STATIC_DRAW);                /* Put data from 'indices' into       */
@@ -177,12 +253,12 @@ int main(int argc, char* argv[], char* envp[])
                                         /* 'indices_buffer')                  */
 
     glBindVertexBuffer(0, vertex_buffer, 0, sizeof(GLfloat) * 2);
-                                        /* Bind 'vertex_buffer' to            */
-                                        /* 'vertex_array' at index 0.         */
+    /* Bind 'vertex_buffer' to            */
+    /* 'vertex_array' at index 0.         */
 
     glBindVertexBuffer(1, txd_vertex_buffer, 0, sizeof(GLfloat) * 2);
-                                        /* Bind 'txd_vertex_buffer' to        */
-                                        /* 'vertex_array' at index 0.         */
+    /* Bind 'txd_vertex_buffer' to        */
+    /* 'vertex_array' at index 0.         */
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

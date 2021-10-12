@@ -17,6 +17,8 @@
 
 
 
+#define TB_NO_GROUP 0
+
 /** @types -------------------------------------------------------------------*/
 
 typedef struct
@@ -46,9 +48,8 @@ typedef struct
 
 
 
-stTexture* tb_add_texture(const char* image_path, int subimg_x, int subimg_y,
-    int subimg_w, int subimg_h);
-
+stTexture* tb_add_texture(int group_idx,  const char* image_path, int subimg_x,
+    int subimg_y, int subimg_w, int subimg_h);
 
 void tb_build(void);
 
