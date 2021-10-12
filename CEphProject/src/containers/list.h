@@ -18,11 +18,17 @@ typedef struct list_node
 }list_node;
 
 
+typedef struct list
+{
+    list_node* nodes;
+}list;
 
-list_node* list_create(void);
-void list_push(list_node* root, void* data);
-void list_cleanup(list_node* root);
-int list_get_size(list_node* root);
+
+
+list* list_create(void);
+void list_destroy(list* l);
+void list_push(list* l, void* data);
+int list_get_size(list* l);
 
 
 

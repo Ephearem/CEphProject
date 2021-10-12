@@ -62,7 +62,7 @@ typedef struct
 typedef struct
 {
     stSquare* square;                   /* Used/unused layer pixels           */
-    list_node* textures;                /* List of 'stTexture' objects        */
+    list* textures;                     /* List of 'stTexture' objects        */
 }stLayerBuildData;
 
 
@@ -70,17 +70,17 @@ typedef struct
 typedef struct
 {
     GLenum unit;
-    list_node* layers;                  /* List of 'stLayerBuildData objects  */
+    list* layers;                       /* List of 'stLayerBuildData objects  */
 
 }stArrayBuildData;
 
 
 
 /** @static_data -------------------------------------------------------------*/
-static list_node* _textures_to_build = NULL;
-static list_node* _arrays_to_build = NULL;
-static map* _texture_groups_to_build;
-static list_node* _group_indices = NULL;
+static list* _textures_to_build = NULL;
+static list* _arrays_to_build = NULL;
+static map* _texture_groups_to_build = NULL;
+static list* _group_indices = NULL;
 
 
 
@@ -89,7 +89,7 @@ static unsigned int _create_texture_2d_array(unsigned int unit,
     int width, int height, int depth);
 static void _cleanup_build_data(void);
 static void _fit_texture(stTextureBuildData* tbd);
-static void _fit_texture_group(list_node* group_textures);
+static void _fit_texture_group(list* group_textures);
 static stLayerBuildData* _create_layer_bd(void);
 static stArrayBuildData* _create_array_bd(void);
 static stTexture* _load_texture_into_texture_2d_array(
@@ -145,12 +145,12 @@ static int _get_texture_2d_array_height(unsigned int id);
 ;               | function).
 ;
 -----------------------------------------------------------------------------**/
-stTexture* tb_add_texture(int group_idx, const char* image_path, int subimg_x, int subimg_y,
-    int subimg_w, int subimg_h)
+stTexture* tb_add_texture(int group_idx, const char* image_path, int subimg_x,
+    int subimg_y, int subimg_w, int subimg_h)
 {
-    extern list_node* _textures_to_build;
+    extern list* _textures_to_build;
     extern map* _texture_groups_to_build;
-    extern list_node* _group_indices;
+    extern list* _group_indices;
 
     stTextureBuildData* texture_build_data_ptr = m_malloc(sizeof(stTextureBuildData));
     texture_build_data_ptr->image_path = image_path;
@@ -164,22 +164,27 @@ stTexture* tb_add_texture(int group_idx, const char* image_path, int subimg_x, i
     texture_build_data_ptr->layer_offset_y = -1; /* Will be filled in build() */
 
     if (group_idx == TB_NO_GROUP)
-        LIST_PUSH(_textures_to_build, texture_build_data_ptr);
+    {
+        if(NULL == _textures_to_build)
+            _textures_to_build = list_create();
+        list_push(_textures_to_build, texture_build_data_ptr);
+    }
     else
     {
         if (NULL == _texture_groups_to_build)
             _texture_groups_to_build = map_create();
 
-        list_node* cur_group_textures = map_search(_texture_groups_to_build, group_idx);
+        list* cur_group_textures = map_search(_texture_groups_to_build, group_idx);
         if (NULL == cur_group_textures)
         {
-            LIST_PUSH(cur_group_textures, texture_build_data_ptr);
+            cur_group_textures = list_create();
+            if (NULL == _group_indices)
+                _group_indices = list_create();
+            list_push(_group_indices, (void*)group_idx);
             map_insert(_texture_groups_to_build, group_idx, cur_group_textures);
-            LIST_PUSH(_group_indices, (void*)group_idx);
-
         }
-        else
-            list_push(cur_group_textures, texture_build_data_ptr);
+
+        list_push(cur_group_textures, texture_build_data_ptr);
     }
     return texture_build_data_ptr->target;
 }
@@ -195,13 +200,16 @@ stTexture* tb_add_texture(int group_idx, const char* image_path, int subimg_x, i
 -----------------------------------------------------------------------------**/
 void tb_build(void)
 {
-    extern list_node* _arrays_to_build;
-    extern list_node* _textures_to_build;
+    extern list* _arrays_to_build;
+    extern list* _textures_to_build;
     extern map* _texture_groups_to_build;
-    extern list_node* _group_indices;
+    extern list* _group_indices;
+
+    _arrays_to_build = list_create();
+
 
     /* Find free space (array and layer) for the current texture */
-    for (list_node* tbd_node = _textures_to_build; tbd_node != NULL; tbd_node = tbd_node->next)
+    for (list_node* tbd_node = _textures_to_build->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
     {
         stTextureBuildData* tbd = tbd_node->data;
         _fit_texture(tbd);
@@ -210,14 +218,14 @@ void tb_build(void)
     /* Find free space (array and layer) for the current texture group */
     if (_texture_groups_to_build != NULL)
     {
-        for (list_node* group_index_node = _group_indices; group_index_node != NULL; group_index_node = group_index_node->next)
+        for (list_node* group_index_node = _group_indices->nodes; group_index_node != NULL; group_index_node = group_index_node->next)
         {
             int group_index = (int)(group_index_node->data);
             _fit_texture_group(map_search(_texture_groups_to_build, group_index));
         }
     }
    
-    for (list_node* abd_node = _arrays_to_build; abd_node != NULL; abd_node = abd_node->next)
+    for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
         stArrayBuildData* abd = abd_node->data;
 
@@ -232,11 +240,11 @@ void tb_build(void)
 
         int cur_z_offset = 0;
 
-        for (list_node* lbd_node = abd->layers; lbd_node != NULL; lbd_node = lbd_node->next)
+        for (list_node* lbd_node = abd->layers->nodes; lbd_node != NULL; lbd_node = lbd_node->next)
         {
             stLayerBuildData* lbd = lbd_node->data;
 
-            for (list_node* tbd_node = lbd->textures; tbd_node != NULL; tbd_node = tbd_node->next)
+            for (list_node* tbd_node = lbd->textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
             {
                 stTextureBuildData* tbd = tbd_node->data;
 
@@ -357,19 +365,19 @@ static unsigned int _create_texture_2d_array(unsigned int unit,
 -----------------------------------------------------------------------------**/
 static void _cleanup_build_data(void)
 {
-    extern list_node* _arrays_to_build;
-    extern list_node* _textures_to_build;
+    extern list* _arrays_to_build;
+    extern list* _textures_to_build;
     extern map* _texture_groups_to_build;
-    extern list_node* _group_indices;
+    extern list* _group_indices;
 
-    for (list_node* abd_node = _arrays_to_build; abd_node != NULL; abd_node = abd_node->next)
+    for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
         stArrayBuildData* abd = abd_node->data;
-        for (list_node* lbd_node = abd->layers; lbd_node != NULL; lbd_node = lbd_node->next)
+        for (list_node* lbd_node = abd->layers->nodes; lbd_node != NULL; lbd_node = lbd_node->next)
         {
             stLayerBuildData* lbd = lbd_node->data;
 
-            for (list_node* tbd_node = lbd->textures; tbd_node != NULL; tbd_node = tbd_node->next)
+            for (list_node* tbd_node = lbd->textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
             {
                 stTextureBuildData* tbd = tbd_node->data;
                 // TODO: Uncomment after module 'sprite' implemented.
@@ -381,53 +389,43 @@ static void _cleanup_build_data(void)
 
                 m_free(tbd);
             }
-            list_cleanup(lbd->textures);
+            list_destroy(lbd->textures);
             sq_destroy(lbd->square);
             m_free(lbd);
         }
-        list_cleanup(abd->layers);
+        list_destroy(abd->layers);
         m_free(abd);
     }
-    list_cleanup(_arrays_to_build);
-    list_cleanup(_textures_to_build);
+    list_destroy(_arrays_to_build);
+    list_destroy(_textures_to_build);
 
     _arrays_to_build = NULL;
     _textures_to_build = NULL;
 
     if (_texture_groups_to_build != NULL)
     {
-        for (list_node* group_index_node = _group_indices; group_index_node != NULL; group_index_node = group_index_node->next)
+        for (list_node* group_index_node = _group_indices->nodes; group_index_node != NULL; group_index_node = group_index_node->next)
         {
             int group_index = (int)(group_index_node->data);
-            list_cleanup(map_search(_texture_groups_to_build, group_index));
+            list_destroy(map_search(_texture_groups_to_build, group_index));
         }
         map_destroy(_texture_groups_to_build);
-        list_cleanup(_group_indices);
+        list_destroy(_group_indices);
         _texture_groups_to_build = NULL;
         _group_indices = NULL;
     }
-    //if (_texture_groups_to_build != NULL)
-    //{
-    //    for (int i = 1; i < _group_idx; i++)
-    //    {
-    //        list_cleanup(map_search(_texture_groups_to_build, i));
-    //    }
-    //    map_destroy(_texture_groups_to_build);
-    //    _texture_groups_to_build = NULL;
-    //    _group_idx = 0;
-    //}
 }
 
 
 static void _fit_texture(stTextureBuildData* tbd)
 {
     /* For each array */
-    for (list_node* abd_node = _arrays_to_build; abd_node != NULL; abd_node = abd_node->next)
+    for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
         stArrayBuildData* abd = abd_node->data;
 
         /* For each layer */
-        for (list_node* lbd_node = abd->layers; lbd_node != NULL; lbd_node = lbd_node->next)
+        for (list_node* lbd_node = abd->layers->nodes; lbd_node != NULL; lbd_node = lbd_node->next)
         {
             stLayerBuildData* lbd = lbd_node->data;
             int layer_offset_x = -1;
@@ -443,8 +441,8 @@ static void _fit_texture(stTextureBuildData* tbd)
             tbd->layer_offset_x = layer_offset_x;
             tbd->layer_offset_y = layer_offset_y;
 
-            LIST_PUSH(lbd->textures, tbd);
-
+            list_push(lbd->textures, tbd);
+            
             return;
         }
     }
@@ -453,23 +451,23 @@ static void _fit_texture(stTextureBuildData* tbd)
 }
 
 
-static void _fit_texture_group(list_node* group_textures)
+static void _fit_texture_group(list* group_textures)
 {
 
     int result = 0;
     stLayerBuildData* lbd_res = NULL;
     /* For each array */
-    for (list_node* abd_node = _arrays_to_build; abd_node != NULL; abd_node = abd_node->next)
+    for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
         stArrayBuildData* abd = abd_node->data;
 
         /* For each layer */
-        for (list_node* lbd_node = abd->layers; lbd_node != NULL; lbd_node = lbd_node->next)
+        for (list_node* lbd_node = abd->layers->nodes; lbd_node != NULL; lbd_node = lbd_node->next)
         {
             stLayerBuildData* lbd = lbd_node->data;
 
             /* Try to fit all group textures on it */
-            for (list_node* tbd_node = group_textures; tbd_node != NULL; tbd_node = tbd_node->next)
+            for (list_node* tbd_node = group_textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
             {
                 stTextureBuildData* tbd = tbd_node->data;
                 int layer_offset_x = -1;
@@ -480,7 +478,7 @@ static void _fit_texture_group(list_node* group_textures)
                 if ((layer_offset_x == SQ_FAIL) || (layer_offset_y == SQ_FAIL))
                 {
                     /* Undo all layer changes */
-                    for (list_node* _tbd_node = group_textures; _tbd_node != tbd_node; _tbd_node = _tbd_node->next)
+                    for (list_node* _tbd_node = group_textures->nodes; _tbd_node != tbd_node; _tbd_node = _tbd_node->next)
                     {
                         stTextureBuildData* _tbd = _tbd_node->data;
                         sq_unuse_rect(lbd->square, _tbd->layer_offset_x, _tbd->layer_offset_y, _tbd->subimg_w, _tbd->subimg_h);
@@ -502,10 +500,10 @@ static void _fit_texture_group(list_node* group_textures)
             }
             if (result == 1) /* Success */
             {
-                for (list_node* tbd_node = group_textures; tbd_node != NULL; tbd_node = tbd_node->next)
+                for (list_node* tbd_node = group_textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
                 {
                     stTextureBuildData* tbd = tbd_node->data;
-                    LIST_PUSH(lbd_res->textures, tbd);
+                    list_push(lbd_res->textures, tbd);
                 }
                 return;
             }
@@ -519,13 +517,13 @@ static void _fit_texture_group(list_node* group_textures)
 
 static stLayerBuildData* _create_layer_bd(void)
 {
-    extern list_node* _arrays_to_build;
+    extern list* _arrays_to_build;
 
     int max_size = _get_max_3d_texture_size();
     int max_depth = _get_max_array_texture_layers();
 
 
-    for (list_node* abd_node = _arrays_to_build; abd_node != NULL; abd_node = abd_node->next)
+    for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
         stArrayBuildData* abd = abd_node->data;
 
@@ -534,8 +532,8 @@ static stLayerBuildData* _create_layer_bd(void)
 
         stLayerBuildData* layer = m_calloc(1, sizeof(stLayerBuildData));
         layer->square = sq_create(max_size, max_size);
-        layer->textures = NULL; // TODO: Remove.
-        LIST_PUSH(abd->layers, layer);
+        layer->textures = list_create(); // TODO: Remove.
+        list_push(abd->layers, layer);
         return layer;
     }
 
@@ -546,7 +544,7 @@ static stLayerBuildData* _create_layer_bd(void)
 
 static stArrayBuildData* _create_array_bd(void)
 {
-    extern list_node* _arrays_to_build;
+    extern list* _arrays_to_build;
 
     int arrays_to_build_size = list_get_size(_arrays_to_build);
 
@@ -556,8 +554,8 @@ static stArrayBuildData* _create_array_bd(void)
 
     stArrayBuildData* abd = m_malloc(sizeof(stArrayBuildData));
     abd->unit = GL_TEXTURE0 + arrays_to_build_size;
-    abd->layers = NULL; // TODO: Remove.
-    LIST_PUSH(_arrays_to_build, abd);
+    abd->layers = list_create(); // TODO: Remove.
+    list_push(_arrays_to_build, abd);
 
     return abd;
 }
@@ -717,7 +715,7 @@ static void _calculate_array_size(stArrayBuildData* tabd,
     *out_w = -1;
     *out_h = -1;
 
-    for (list_node* lbd_node = tabd->layers; lbd_node != NULL; lbd_node = lbd_node->next)
+    for (list_node* lbd_node = tabd->layers->nodes; lbd_node != NULL; lbd_node = lbd_node->next)
     {
         stLayerBuildData* lbd = lbd_node->data;
 

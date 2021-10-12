@@ -1,19 +1,44 @@
+#include "list.h"
 #include "../core/memory.h"
 
-#include "list.h"
 
 
-
-list_node* list_create(void)
+list* list_create(void)
 {
-    return (list_node*)calloc(1, sizeof(list_node));
+    return (list*)m_calloc(1, sizeof(list));
 }
 
 
-void list_push(list_node* root, void* data)
+void list_destroy(list* l)
 {
-    list_node* cur = root;
+    if (NULL == l)
+        return;
 
+    list_node* cur = l->nodes;
+
+    while (cur)
+    {
+        list_node* tmp = cur->next;
+        m_free(cur);
+        cur = tmp;
+    }
+    m_free(l);
+}
+
+
+void list_push(list* l, void* data)
+{
+    if (NULL == l)
+        return;
+    if (NULL == l->nodes)
+    {
+        l->nodes = m_malloc(sizeof(list_node));
+        l->nodes->data = data;
+        l->nodes->next = NULL;
+        return;
+    }
+
+    list_node* cur = l->nodes;
     while (cur->next)
         cur = cur->next;
 
@@ -23,31 +48,18 @@ void list_push(list_node* root, void* data)
 }
 
 
-void list_cleanup(list_node* root)
+int list_get_size(list* l)
 {
-    list_node* cur = root;
-
-    while (cur)
-    {
-        list_node* tmp = cur->next;
-        m_free(cur);
-        cur = tmp;
-    }
-}
-
-
-int list_get_size(list_node* root)
-{
-    if (NULL == root)
+    if (NULL == l)
         return 0;
 
     int result = 1;
-    list_node* tmp = root;
+    list_node* node = l->nodes;
 
-    while (tmp->next != NULL)
+    while (node)
     {
         result++;
-        tmp = tmp->next;
+        node = node->next;
     }
     return result;
 }
