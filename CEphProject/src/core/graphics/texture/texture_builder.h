@@ -53,6 +53,8 @@ stTexture* tb_add_texture(int group_idx,  const char* image_path, int subimg_x,
 
 void tb_build(void);
 
+void tb_destroy(void);
+
 
 
 #endif /* !TEXTURE_BUILDER_H */

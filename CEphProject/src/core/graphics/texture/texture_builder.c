@@ -77,10 +77,16 @@ typedef struct
 
 
 /** @static_data -------------------------------------------------------------*/
-static list* _textures_to_build = NULL;
-static list* _arrays_to_build = NULL;
+
+/* Stores information about all textures to be built */
+static list* _textures_to_build = NULL; /* List of 'stTextureBuildData'       */
+static list* _arrays_to_build = NULL;   /* List of 'stArrayBuildData'         */
 static map* _texture_groups_to_build = NULL;
-static list* _group_indices = NULL;
+static list* _group_indices = NULL;     /* List of 'int'                      */
+
+/* Stores pointers to created textures. Used to remove them from video
+   memory and CPU */
+static list* _created_textures = NULL;  /* List of 'stTexture'                */
 
 
 
@@ -204,15 +210,23 @@ void tb_build(void)
     extern list* _textures_to_build;
     extern map* _texture_groups_to_build;
     extern list* _group_indices;
+    extern list* _created_textures;
+
+    /* Remove from video memory textures created during the previous call to the
+       'tb_build' function */
+    tb_destroy();
 
     _arrays_to_build = list_create();
 
 
     /* Find free space (array and layer) for the current texture */
-    for (list_node* tbd_node = _textures_to_build->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
+    if (_textures_to_build != NULL)
     {
-        stTextureBuildData* tbd = tbd_node->data;
-        _fit_texture(tbd);
+        for (list_node* tbd_node = _textures_to_build->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
+        {
+            stTextureBuildData* tbd = tbd_node->data;
+            _fit_texture(tbd);
+        }
     }
 
     /* Find free space (array and layer) for the current texture group */
@@ -262,15 +276,54 @@ void tb_build(void)
                     img->channels_count);
                 free_image(img);
 
+                loaded_txd->texture_info_ptr->unit -= GL_TEXTURE0;
+
                 memcpy(tbd->target, loaded_txd, sizeof(stTexture));
                 m_free(loaded_txd);
 
+                /* Save the address of the created texture */
+                if (NULL == _created_textures)
+                    _created_textures = list_create();
+                list_push(_created_textures, tbd->target);
             }
             cur_z_offset++;
         }
     }
 
     _cleanup_build_data();
+}
+
+
+/**-----------------------------------------------------------------------------
+; @func tb_destroy
+;
+; @brief
+;   Completely removes textures created by the last call to the 'tb_buIld'
+;   function:
+;     - Removes created textures (arrays of 2d textures) from video memory.
+;     - Frees memory allocated for each 'stTexture' object created in the
+;       'tb_create' function (all pointers that were returned by this function
+;       become invalid).
+;
+-----------------------------------------------------------------------------**/
+void tb_destroy(void)
+{
+    extern list* _created_textures;
+
+    if (NULL == _created_textures)
+        return;
+
+    for (list_node* texture_node = _created_textures->nodes;
+        texture_node != NULL;
+        texture_node = texture_node->next)
+    {
+        stTexture* texture_ptr = texture_node->data;
+        glDeleteTextures(1, &(texture_ptr->texture_info_ptr->array_id));
+        m_free(texture_ptr->texture_info_ptr);
+        m_free(texture_ptr);
+    }
+    list_destroy(_created_textures);
+    _created_textures = NULL;
 }
 
 
@@ -323,8 +376,8 @@ static unsigned int _create_texture_2d_array(unsigned int unit,
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexImage3D(
         GL_TEXTURE_2D_ARRAY,            /* Target to which the texture is     */
                                         /* bound                              */
@@ -632,11 +685,11 @@ static stTexture* _load_texture_into_texture_2d_array(
     glBindTexture(GL_TEXTURE_2D_ARRAY, array_id);
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, image_width);
-    /* The full width of the image from   */
-    /* which the texture is created       */
+                                        /* The full width of the image from   */
+                                        /* which the texture is created       */
     glPixelStorei(GL_UNPACK_SKIP_PIXELS, image_x_offset);
-    /* Subimage x-offset (from the        */
-    /* beginning of the image).           */
+                                        /* Subimage x-offset (from the        */
+                                        /* beginning of the image).           */
     glPixelStorei(GL_UNPACK_SKIP_ROWS, image_height - image_y_offset
         - subimage_height);             /* Subimage y-offset (from the        */
                                         /* beginning of the image).           */
