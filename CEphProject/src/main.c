@@ -19,8 +19,8 @@
 #include "core/loop.h"
 #include "core/graphics/shaders.h"
 #include "core/graphics/texture/texture_builder.h"
+#include "core/graphics/vertex_array.h"
 
-#include "containers/map.h"
 
 
 stTexture* t1 = NULL;
@@ -196,7 +196,7 @@ int main(int argc, char* argv[], char* envp[])
     }
     tb_build();
 
-    /* Set up vertices and indices data */
+    /* Set up vertices and txd vertices data */
     float vertices[] =
     {
         1.0f, 0.0f,                     /* Top right                          */
@@ -204,11 +204,7 @@ int main(int argc, char* argv[], char* envp[])
         0.0f, 1.0f,                     /* Bottom left                        */
         0.0f, 0.0f                      /* Top left                           */
     };
-    unsigned int indices[] =
-    {
-        0, 1, 3,                        /* The 1-st triangle                  */
-        1, 2, 3                         /* The 2-nd triangle                  */
-    };
+
     float txd_vertices[] =
     {
         1.0f, 1.0f,                     /* Top right                          */
@@ -217,90 +213,9 @@ int main(int argc, char* argv[], char* envp[])
         0.0f, 1.0f                      /* Top left                           */
     };
 
-    unsigned int vertex_buffer = 0;
-    unsigned int txd_vertex_buffer = 0;
-    unsigned int indices_buffer = 0;
-    unsigned int vertex_array = 0;
-
-    glGenVertexArrays(1, &vertex_array);/* Generate a verex array object      */
-
-    glGenBuffers(1, &vertex_buffer);    /* Generate a buffer object to store  */
-                                        /* the positions of the vertices      */
-
-    glGenBuffers(1, &txd_vertex_buffer);/* Generate a buffer object to store  */
-                                        /* the texture coordinates            */
-
-    glGenBuffers(1, &indices_buffer);   /* Generate a buffer object to store  */
-                                        /* the vertex indices                 */
-
-    glBindVertexArray(vertex_array);    /* Set 'vertex_array' as the current  */
-                                        /* vertex array object.               */
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    /* Bind 'vertex_buffer' to            */
-    /* GL_ARRAY_BUFFER. All following     */
-    /* calls to GL_ARRAY_BUFFER will      */
-    /* refer to this 'vertex_buffer'      */
-    /* object.                            */
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    /* Put data from 'vertices' into      */
-    /* GL_ARRAY_BUFFER (i.e. into         */
-    /* 'vertex_buffer')                   */
-
-    glBindBuffer(GL_ARRAY_BUFFER, txd_vertex_buffer);
-    /* Bind 'vertex_buffer' to            */
-    /* GL_ARRAY_BUFFER. All following     */
-    /* calls to GL_ARRAY_BUFFER will      */
-    /* refer to this 'vertex_buffer'      */
-    /* object.                            */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(txd_vertices), txd_vertices,
-        GL_STATIC_DRAW);
-    /* Put data from 'txd_vertices' into  */
-    /* GL_ARRAY_BUFFER (i.e. into         */
-    /* 'txd_vertex_buffer'                */
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_buffer);
-    /* Bind 'vertex_buffer' to            */
-    /* GL_ELEMENT_ARRAY_BUFFER. All       */
-    /* following calls to                 */
-    /* GL_ELEMENT_ARRAY_BUFFER will refer */
-    /* to this 'indices_buffer' object.   */
-
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-        GL_STATIC_DRAW);                /* Put data from 'indices' into       */
-                                        /* GL_ELEMENT_ARRAY_BUFFER (i.e. into */
-                                        /* 'indices_buffer')                  */
-
-    glBindVertexBuffer(0, vertex_buffer, 0, sizeof(GLfloat) * 2);
-    /* Bind 'vertex_buffer' to            */
-    /* 'vertex_array' at index 0.         */
-
-    glBindVertexBuffer(1, txd_vertex_buffer, 0, sizeof(GLfloat) * 2);
-    /* Bind 'txd_vertex_buffer' to        */
-    /* 'vertex_array' at index 0.         */
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);   /* 'vertex_buffer' and                */
-                                        /* 'txd_vertex_buffer'can be unbound  */
-                                        /* since they are bound to            */
-                                        /* 'vertex_array' as the vertex       */
-                                        /* attributes at indices 0 and 1      */
-
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                                        /* 'indices_buffer' cannot be         */
-                                        /* unbound from 'vertex_array' while  */
-                                        /* 'vertex_array' is active           */
-
-
-    glBindVertexArray(0);               /* Unbind 'vertex_array' so that      */
-                                        /* other calls to the vertex array    */
-                                        /* will not change the current        */
-                                        /* ('vertex_array') object.           */
-    glBindVertexArray(vertex_array);
-
+    unsigned int va = va_create();
+    va_add_textured_rect(va, vertices, txd_vertices);
+    va_build(va);
 
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
     glm_ortho(0.0f, (float)get_window_width(), (float)get_window_height(),
@@ -317,10 +232,12 @@ int main(int argc, char* argv[], char* envp[])
     start_loop(loop_iteration_callback);
 
     /* De-allocate all resources */
-    glDeleteVertexArrays(1, &vertex_array);
-    glDeleteBuffers(1, &vertex_buffer);
-    glDeleteBuffers(1, &txd_vertex_buffer);
-    glDeleteBuffers(1, &indices_buffer);
+    va_destroy(va);
+    tb_destroy();
+    //glDeleteVertexArrays(1, &vertex_array);
+    //glDeleteBuffers(1, &vertex_buffer);
+    //glDeleteBuffers(1, &txd_vertex_buffer);
+    //glDeleteBuffers(1, &indices_buffer);
     // glDeleteTextures(1, &texture_2d_array); // TODO: Implement.
 
     return 0;
