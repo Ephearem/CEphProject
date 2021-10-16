@@ -61,14 +61,9 @@ unsigned int va_create(void)
         _va_to_build = map_create();
 
     stVaBuildData* vabd_ptr = m_calloc(1, sizeof(stVaBuildData));
-    
+
     /* Generate a verex array object  */
-    glGenVertexArrays(1, &vabd_ptr->vertex_array);
-    if (glGetError() != 0)
-    {
-        LOG_ERROR("Failed to create vertex array(s).");
-        return 0;
-    }
+    GL_CALL(glGenVertexArrays(1, &vabd_ptr->vertex_array));
     map_insert(_va_to_build, vabd_ptr->vertex_array, vabd_ptr);
 
     return vabd_ptr->vertex_array;
@@ -144,62 +139,60 @@ void va_build(unsigned int va_idx)
         return;
 
     /* Generate a buffer object to store the positions of the vertices */
-    glGenBuffers(1, &vabd_ptr->vertex_buffer);
+    GL_CALL(glGenBuffers(1, &vabd_ptr->vertex_buffer));
 
     /* Generate a buffer object to store the texture coordinates */
-    glGenBuffers(1, &vabd_ptr->txd_vertex_buffer);
+    GL_CALL(glGenBuffers(1, &vabd_ptr->txd_vertex_buffer));
 
     /* Generate a buffer object to store the vertex indices */
-    glGenBuffers(1, &vabd_ptr->indices_buffer);
+    GL_CALL(glGenBuffers(1, &vabd_ptr->indices_buffer));
 
     /* Set '_vertex_array' as the current vertex array object */
-    glBindVertexArray(vabd_ptr->vertex_array);
+    GL_CALL(glBindVertexArray(vabd_ptr->vertex_array));
 
     /* Bind '_vertex_buffer' to  GL_ARRAY_BUFFER. All following calls to
        GL_ARRAY_BUFFER will calls to GL_ARRAY_BUFFER will refer to this
        '_vertex_buffer' object. */
-    glBindBuffer(GL_ARRAY_BUFFER, vabd_ptr->vertex_buffer);
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vabd_ptr->vertex_buffer));
 
     /* Put data from 'vertices' into GL_ARRAY_BUFFER
        (i.e. into '_vertex_buffer') */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vabd_ptr->vertices_number, vabd_ptr->vertices, GL_STATIC_DRAW);
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vabd_ptr->vertices_number, vabd_ptr->vertices, GL_STATIC_DRAW));
 
     /* Bind '_txd_vertex_buffer' to GL_ARRAY_BUFFER. All following  calls to
        GL_ARRAY_BUFFER will refer to this '_txd_vertex_buffer' object. */
-    glBindBuffer(GL_ARRAY_BUFFER, vabd_ptr->txd_vertex_buffer);
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vabd_ptr->txd_vertex_buffer));
 
     /* Put data from 'txd_vertices' into GL_ARRAY_BUFFER
       (i.e. into '_txd_vertex_buffer' */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vabd_ptr->txd_vertices_number, vabd_ptr->txd_vertices,
-        GL_STATIC_DRAW);
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vabd_ptr->txd_vertices_number, vabd_ptr->txd_vertices,
+        GL_STATIC_DRAW));
 
     /* Bind '_indices_buffer' to GL_ELEMENT_ARRAY_BUFFER. All following calls to
        GL_ELEMENT_ARRAY_BUFFER will refer to this 'indices_buffer' object. */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vabd_ptr->indices_buffer);
+    GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vabd_ptr->indices_buffer));
 
     /* Put data from 'indices' into GL_ELEMENT_ARRAY_BUFFER
        (i.e. into '_indices_buffer') */
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * vabd_ptr->indices_number, vabd_ptr->indices,
-        GL_STATIC_DRAW);
+    GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * vabd_ptr->indices_number, vabd_ptr->indices,
+        GL_STATIC_DRAW));
 
     /* Bind '_vertex_buffer' to '_vertex_array' at index 0 */
-    glBindVertexBuffer(0, vabd_ptr->vertex_buffer, 0, sizeof(GLfloat) * 2);
+    GL_CALL(glBindVertexBuffer(0, vabd_ptr->vertex_buffer, 0, sizeof(GLfloat) * 2));
 
     /* Bind '_txd_vertex_buffer' to  '_vertex_array' at index 0 */
-    glBindVertexBuffer(1, vabd_ptr->txd_vertex_buffer, 0, sizeof(GLfloat) * 2);
+    GL_CALL(glBindVertexBuffer(1, vabd_ptr->txd_vertex_buffer, 0, sizeof(GLfloat) * 2));
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+    GL_CALL(glEnableVertexAttribArray(0));
+    GL_CALL(glEnableVertexAttribArray(1));
 
     /* '_vertex_buffer' and '_txd_vertex_buffer' can be unbound since they are
         bound to '_vertex_array' as the vertex attributes at indices 0 and 1 */
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     m_free(vabd_ptr->vertices);
     m_free(vabd_ptr->txd_vertices);
     m_free(vabd_ptr->indices);
-
 }
 
 
@@ -212,10 +205,10 @@ void va_destroy(unsigned int va_idx)
 
     if (vabd_ptr != NULL)
     {
-        glDeleteVertexArrays(1, &vabd_ptr->vertex_array);
-        glDeleteBuffers(1, &vabd_ptr->vertex_buffer);
-        glDeleteBuffers(1, &vabd_ptr->txd_vertex_buffer);
-        glDeleteBuffers(1, &vabd_ptr->indices_buffer);
+        GL_CALL(glDeleteVertexArrays(1, &vabd_ptr->vertex_array));
+        GL_CALL(glDeleteBuffers(1, &vabd_ptr->vertex_buffer));
+        GL_CALL(glDeleteBuffers(1, &vabd_ptr->txd_vertex_buffer));
+        GL_CALL(glDeleteBuffers(1, &vabd_ptr->indices_buffer));
         m_free(vabd_ptr);
     }
 
