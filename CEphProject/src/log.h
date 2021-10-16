@@ -24,6 +24,7 @@
 #define LOG_WARNING(...) printf("WARNING: " __VA_ARGS__); printf("\n");
 #define LOG_ERROR(...) printf("ERROR: " __VA_ARGS__); printf("\n");
 
+// TODO: Clear previous errors.
 #define GL_CALL(expression) \
 do \
 { \
