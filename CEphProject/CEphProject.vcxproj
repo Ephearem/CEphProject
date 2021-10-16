@@ -295,7 +295,7 @@
     <ClCompile Include="src\containers\list.c" />
     <ClCompile Include="src\containers\map.c" />
     <ClCompile Include="src\core\graphics\image.c" />
-    <ClCompile Include="src\core\graphics\shaders.c" />
+    <ClCompile Include="src\core\graphics\shader.c" />
     <ClCompile Include="src\core\graphics\texture\square.c" />
     <ClCompile Include="src\core\graphics\texture\texture_builder.c" />
     <ClCompile Include="src\core\graphics\vertex_array.c" />
@@ -308,7 +308,7 @@
     <ClInclude Include="src\containers\list.h" />
     <ClInclude Include="src\containers\map.h" />
     <ClInclude Include="src\core\graphics\image.h" />
-    <ClInclude Include="src\core\graphics\shaders.h" />
+    <ClInclude Include="src\core\graphics\shader.h" />
     <ClInclude Include="src\core\graphics\texture\square.h" />
     <ClInclude Include="src\core\graphics\texture\texture_builder.h" />
     <ClInclude Include="src\core\graphics\vertex_array.h" />

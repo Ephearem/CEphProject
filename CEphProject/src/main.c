@@ -17,7 +17,7 @@
 
 #include "core/window.h"
 #include "core/loop.h"
-#include "core/graphics/shaders.h"
+#include "core/graphics/shader.h"
 #include "core/graphics/texture/texture_builder.h"
 #include "core/graphics/vertex_array.h"
 
@@ -48,83 +48,83 @@ void loop_iteration_callback(void)
 {
     {
         vec2 pos = { 000.0f, 000.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t1->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t1->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t1->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t1->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 000.0f, 160.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t2->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t2->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t2->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t2->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 000.0f, 320.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t3->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t3->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t3->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t3->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 160.0f, 000.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t4->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t4->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t4->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t4->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 160.0f, 160.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t5->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t5->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t5->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t5->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 160.0f, 320.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t6->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t6->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t6->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t6->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 320.0f, 000.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t7->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t7->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t7->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t7->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 320.0f, 160.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t8->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t8->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t8->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t8->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     {
         vec2 pos = { 320.0f, 320.0f };
-        set_shader_uf_vec2(3, "uf_model_pos", pos);
+        shader_set_uf_fvec2(3, "uf_model_pos", pos);
         vec2 size = { 150.0f, 150.0f };
-        set_shader_uf_vec2(3, "uf_model_size", size);
-        set_shader_uf_int(3, "uf_txd_array_z_offset", t9->texture_info_ptr->z_offset);
-        set_shader_uf_int(3, "uf_txd_unit", t9->texture_info_ptr->unit);
+        shader_set_uf_fvec2(3, "uf_model_size", size);
+        shader_set_uf_int(3, "uf_txd_array_z_offset", t9->texture_info_ptr->z_offset);
+        shader_set_uf_int(3, "uf_txd_unit", t9->texture_info_ptr->unit);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
 }
@@ -148,11 +148,11 @@ int main(int argc, char* argv[], char* envp[])
     };*/
 
 
-    unsigned int shader_program = create_shader_program(
+    unsigned int shader_program = shader_create_program(
         "resources/shaders/txd_array_vertex.shader",
         "resources/shaders/txd_array_fragment.shader");
 
-    use_shader_program(shader_program);
+    shader_use_program(shader_program);
 
     // Uncomment to check for memory leaks.
     //while (1)
@@ -220,13 +220,13 @@ int main(int argc, char* argv[], char* envp[])
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
     glm_ortho(0.0f, (float)get_window_width(), (float)get_window_height(),
         0.0f, -0.1f, 0.1f, projection);
-    set_shader_uf_mat4(shader_program, "uf_projection", projection);
-    set_shader_uf_int(shader_program, "uf_txd_array_z_offset", 0);
-    set_shader_uf_int(shader_program, "uf_txd_unit", 0);
+    shader_set_uf_fmat4(shader_program, "uf_projection", projection);
+    shader_set_uf_int(shader_program, "uf_txd_array_z_offset", 0);
+    shader_set_uf_int(shader_program, "uf_txd_unit", 0);
     vec2 pos = { 10.0f, 10.0f };
-    set_shader_uf_vec2(shader_program, "uf_model_pos", pos);
+    shader_set_uf_fvec2(shader_program, "uf_model_pos", pos);
     vec2 size = { 512.0f, 512.0f };
-    set_shader_uf_vec2(shader_program, "uf_model_size", size);
+    shader_set_uf_fvec2(shader_program, "uf_model_size", size);
 
 
     start_loop(loop_iteration_callback);

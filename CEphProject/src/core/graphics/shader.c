@@ -9,7 +9,7 @@
 
 #include <glad\glad.h>
 
-#include "shaders.h"
+#include "shader.h"
 #include "../../log.h"
 
 
@@ -23,7 +23,7 @@ static unsigned int _link_shader_program(unsigned int vertex_shader,
 
 
 /** @functions ---------------------------------------------------------------*/
-unsigned int create_shader_program(const char* vertex_shader_path,
+unsigned int shader_create_program(const char* vertex_shader_path,
     const char* fragment_shader_path)
 {
     FILE* vertex_shader_file = NULL;
@@ -73,8 +73,8 @@ unsigned int create_shader_program(const char* vertex_shader_path,
     unsigned int shader_program = _link_shader_program(vertex_shader, 
        fragment_shader);
    
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    GL_CALL(glDeleteShader(vertex_shader));
+    GL_CALL(glDeleteShader(fragment_shader));
 
     free(vertex_shader_source);
     free(fragment_shader_source);
@@ -83,41 +83,41 @@ unsigned int create_shader_program(const char* vertex_shader_path,
 }
 
 
-void use_shader_program(unsigned int shader_program)
+void shader_use_program(unsigned int shader_program)
 {
-    glUseProgram(shader_program);
+    glUseProgram(shader_program); // TODO: Use 'GL_CALL' macro.
 }
 
 
-void set_shader_uf_int(unsigned int shader_program, const char* name, int value)
+void shader_set_uf_int(unsigned int shader_program, const char* name, int value)
 {
     int uniform_location = glGetUniformLocation(shader_program, name);
     glUniform1i(uniform_location, value);
 }
 
 
-void set_shader_uf_float(unsigned int shader_program, const char* name, float value)
+void shader_set_uf_float(unsigned int shader_program, const char* name, float value)
 {
     int uniform_location = glGetUniformLocation(shader_program, name);
     glUniform1f(uniform_location, value);
 }
 
 
-void set_shader_uf_vec2(unsigned int shader_program, const char* name, vec2 value)
+void shader_set_uf_fvec2(unsigned int shader_program, const char* name, vec2 value)
 {
     int uniform_location = glGetUniformLocation(shader_program, name);
     glUniform2fv(uniform_location, 1, value);
 }
 
 
-void set_shader_uf_vec3(unsigned int shader_program, const char* name, vec3 value)
+void shader_set_uf_fvec3(unsigned int shader_program, const char* name, vec3 value)
 {
     int uniform_location = glGetUniformLocation(shader_program, name);
     glUniform3fv(uniform_location, 1, value);
 }
 
 
-void set_shader_uf_mat4(unsigned int shader_program, const char* name, mat4 value)
+void shader_set_uf_fmat4(unsigned int shader_program, const char* name, mat4 value)
 {
     int uniform_location = glGetUniformLocation(shader_program, name);
     glUniformMatrix4fv(uniform_location, 1, GL_FALSE, value);
@@ -132,10 +132,10 @@ static unsigned int _compile_shader(const char* shader_source,
     char info_log[512]; // TODO: 512 hardcode.
 
     unsigned int shader = glCreateShader(shader_type);
-    glShaderSource(shader, 1, &shader_source, NULL);
-    glCompileShader(shader);
+    GL_CALL(glShaderSource(shader, 1, &shader_source, NULL));
+    GL_CALL(glCompileShader(shader));
 
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+    GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &result));
     if (0 == result)
     {
         glGetShaderInfoLog(shader, 512, NULL, info_log);
@@ -153,11 +153,11 @@ static unsigned int _link_shader_program(unsigned int vertex_shader,
     char info_log[512]; // TODO: 512 hardcode.
 
     unsigned int shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
+    GL_CALL(glAttachShader(shader_program, vertex_shader));
+    GL_CALL(glAttachShader(shader_program, fragment_shader));
+    GL_CALL(glLinkProgram(shader_program));
 
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &result);
+    GL_CALL(glGetProgramiv(shader_program, GL_LINK_STATUS, &result));
     if (0 == result)
     {
         glGetProgramInfoLog(shader_program, 512, NULL, info_log);

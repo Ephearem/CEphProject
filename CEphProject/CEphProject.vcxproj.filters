@@ -27,7 +27,7 @@
     <ClCompile Include="src\core\loop.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\graphics\shaders.c">
+    <ClCompile Include="src\core\graphics\shader.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\graphics\image.c">
@@ -65,7 +65,7 @@
     <ClInclude Include="src\core\loop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\graphics\shaders.h">
+    <ClInclude Include="src\core\graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\graphics\image.h">
