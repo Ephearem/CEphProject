@@ -140,7 +140,7 @@ void loop_iteration_callback(void)
 #ifndef TEST_RUN
 int main(int argc, char* argv[], char* envp[])
 {
-    init_window("CEphProject", 800, 600, 0, 0);
+    window_init("CEphProject", 800, 600, 0, 0);
 
     /*map_item map[] = {
         {"str1", 1}, {"str2", 2}, {"str3", 3}, {"str4", 4},
@@ -218,7 +218,7 @@ int main(int argc, char* argv[], char* envp[])
     va_build(va);
 
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    glm_ortho(0.0f, (float)get_window_width(), (float)get_window_height(),
+    glm_ortho(0.0f, (float)window_get_width(), (float)window_get_height(),
         0.0f, -0.1f, 0.1f, projection);
     shader_set_uf_fmat4(shader_program, "uf_projection", projection);
     shader_set_uf_int(shader_program, "uf_txd_array_z_offset", 0);

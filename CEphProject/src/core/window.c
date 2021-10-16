@@ -19,7 +19,7 @@ static void _glfw_error_callback(int code, const char* message);
 
 
 /** @functions ---------------------------------------------------------------*/
-int init_window(const char* title, int width, int height, int is_fullscreen,
+int window_init(const char* title, int width, int height, int is_fullscreen,
     int swap_interval)
 {
     extern GLFWwindow* _window_ptr;
@@ -69,12 +69,12 @@ int init_window(const char* title, int width, int height, int is_fullscreen,
     {
         return -1;
     }
-    glViewport(0, 0, width, height);
+    GL_CALL(glViewport(0, 0, width, height));
 
     /* Enable GL_BLEND to support transparent textures */
-    glEnable(GL_BLEND);
+    GL_CALL(glEnable(GL_BLEND));
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     _width = width;
     _height = height;
@@ -82,19 +82,19 @@ int init_window(const char* title, int width, int height, int is_fullscreen,
     return 0;
 }
 
-void* get_glfw_window_ptr(void)
+void* window_get_glfw_window_ptr(void)
 {
     return _window_ptr;
 }
 
 
-int get_window_width(void)
+int window_get_width(void)
 {
     return _width;
 }
 
 
-int get_window_height(void)
+int window_get_height(void)
 {
     return _height;
 }
@@ -128,7 +128,7 @@ static void _glfw_error_callback(int code, const char* message)
 -----------------------------------------------------------------------------**/
 TEST_BEGIN(test_invalid_window_size)
 {
-    EXPECT_NOT_ZERO(init_window("test", 0, 100, 0, 0));
+    EXPECT_NOT_ZERO(window_init("test", 0, 100, 0, 0));
     EXPECT_NULL(_window_ptr);
     EXPECT(_width, 0);
     EXPECT(_height, 0);
@@ -136,7 +136,7 @@ TEST_BEGIN(test_invalid_window_size)
     _height = 0;
     glfwTerminate();
 
-    EXPECT_NOT_ZERO(init_window("test", 100, 0, 0, 0));
+    EXPECT_NOT_ZERO(window_init("test", 100, 0, 0, 0));
     EXPECT_NULL(_window_ptr);
     EXPECT(_width, 0);
     EXPECT(_height, 0);
@@ -144,7 +144,7 @@ TEST_BEGIN(test_invalid_window_size)
     _height = 0;
     glfwTerminate();
 
-    EXPECT_NOT_ZERO(init_window("test", -1, 1, 0, 0));
+    EXPECT_NOT_ZERO(window_init("test", -1, 1, 0, 0));
     EXPECT_NULL(_window_ptr);
     EXPECT(_width, 0);
     EXPECT(_height, 0);
@@ -152,7 +152,7 @@ TEST_BEGIN(test_invalid_window_size)
     _height = 0;
     glfwTerminate();
 
-    EXPECT_NOT_ZERO(init_window("test", 1, -1, 0, 0));
+    EXPECT_NOT_ZERO(window_init("test", 1, -1, 0, 0));
     EXPECT_NULL(_window_ptr);
     EXPECT(_width, 0);
     EXPECT(_height, 0);
@@ -160,7 +160,7 @@ TEST_BEGIN(test_invalid_window_size)
     _height = 0;
     glfwTerminate();
 
-    EXPECT_NOT_ZERO(init_window("test", 65535, 65535, 0, 0));
+    EXPECT_NOT_ZERO(window_init("test", 65535, 65535, 0, 0));
     EXPECT_NULL(_window_ptr);
     EXPECT(_width, 0);
     EXPECT(_height, 0);
@@ -168,7 +168,7 @@ TEST_BEGIN(test_invalid_window_size)
     _height = 0;
     glfwTerminate();
 
-    EXPECT_ZERO(init_window("test", 1, 1, 0, 0));
+    EXPECT_ZERO(window_init("test", 1, 1, 0, 0));
     EXPECT_NOT_NULL(_window_ptr);
     EXPECT(_width, 1);
     EXPECT(_height, 1);

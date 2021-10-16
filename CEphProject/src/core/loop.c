@@ -32,7 +32,7 @@ void start_loop(void(*loop_iteration_callback_ptr)(void))
             "A plug is installed in its place.");
     }
 
-    while (!glfwWindowShouldClose(get_glfw_window_ptr()))
+    while (!glfwWindowShouldClose(window_get_glfw_window_ptr()))
     {
         /* Sync */
         static float prev_tick_count = 0.0f;
@@ -51,7 +51,7 @@ void start_loop(void(*loop_iteration_callback_ptr)(void))
         loop_iteration_callback_ptr();
 
         /* Swap the front and back buffers */
-        glfwSwapBuffers(get_glfw_window_ptr());
+        glfwSwapBuffers(window_get_glfw_window_ptr());
 
         /* Process all pending events */
         glfwPollEvents();
