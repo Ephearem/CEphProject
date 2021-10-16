@@ -318,7 +318,7 @@ void tb_destroy(void)
         texture_node = texture_node->next)
     {
         stTexture* texture_ptr = texture_node->data;
-        glDeleteTextures(1, &(texture_ptr->texture_info_ptr->array_id));
+        GL_CALL(glDeleteTextures(1, &(texture_ptr->texture_info_ptr->array_id)));
         m_free(texture_ptr->texture_info_ptr);
         m_free(texture_ptr);
     }
@@ -360,25 +360,25 @@ static unsigned int _create_texture_2d_array(unsigned int unit,
 
     /* Save the currently activated texture unit */
     int used_unit = 0;
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &used_unit);
+    GL_CALL(glGetIntegerv(GL_ACTIVE_TEXTURE, &used_unit));
 
     /* Save the currently bound texture 2d array */
     //int bound_texture = 0;
-    //glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture);
+    //GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture));
 
-    glActiveTexture(unit);
+    GL_CALL(glActiveTexture(unit));
 
     /* Generate a 2d texture array object */
-    glGenTextures(1, &texture_2d_array);
+    GL_CALL(glGenTextures(1, &texture_2d_array));
 
     /* Set 'texture_2d_array' as the current vertex array object */
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_2d_array);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, texture_2d_array));
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexImage3D(
+    GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT));
+    GL_CALL(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    GL_CALL(glTexImage3D(
         GL_TEXTURE_2D_ARRAY,            /* Target to which the texture is     */
                                         /* bound                              */
         0,                              /* Level                              */
@@ -389,20 +389,13 @@ static unsigned int _create_texture_2d_array(unsigned int unit,
         0,                              /* Border, must be 0                  */
         GL_RGBA,                        /* Format of the pixel data           */
         GL_UNSIGNED_BYTE,               /* Data type of the pixel data        */
-        NULL);                          /* A pointer to the image data        */
-
-    GLenum error_id = glGetError();     // TODO: Implement macro for this check.
-    if (error_id != GL_NO_ERROR)
-    {
-        LOG_ERROR("[glTexImage3D] returned %d", error_id);
-        return 0;
-    }
+        NULL));                         /* A pointer to the image data        */
 
     /* Restore previous used texture unit */
-    glActiveTexture(used_unit);
+    GL_CALL(glActiveTexture(used_unit));
 
     /* Restore previous bound texture 2d array */
-    //glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture);
+    //GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture));
 
     return texture_2d_array;
 }
@@ -449,8 +442,8 @@ static void _cleanup_build_data(void)
         list_destroy(abd->layers);
         m_free(abd);
     }
-    list_destroy(_arrays_to_build);
-    list_destroy(_textures_to_build);
+    list_destroy(_arrays_to_build);     // TODO: if(NULL == _arrays_to_build)
+    list_destroy(_textures_to_build);   // TODO: if(NULL != _textures_to_build)
 
     _arrays_to_build = NULL;
     _textures_to_build = NULL;
@@ -675,26 +668,26 @@ static stTexture* _load_texture_into_texture_2d_array(
 
     /* Save the currently activated texture unit */
     int used_unit = 0;
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &used_unit);
+    GL_CALL(glGetIntegerv(GL_ACTIVE_TEXTURE, &used_unit));
 
     /* Save the currently bound texture 2d array */
     //int bound_texture = 0;
     //glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture);
 
-    glActiveTexture(unit);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, array_id);
+    GL_CALL(glActiveTexture(unit));
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, array_id));
 
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, image_width);
+    GL_CALL(glPixelStorei(GL_UNPACK_ROW_LENGTH, image_width));
                                         /* The full width of the image from   */
                                         /* which the texture is created       */
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS, image_x_offset);
+    GL_CALL(glPixelStorei(GL_UNPACK_SKIP_PIXELS, image_x_offset));
                                         /* Subimage x-offset (from the        */
                                         /* beginning of the image).           */
-    glPixelStorei(GL_UNPACK_SKIP_ROWS, image_height - image_y_offset
-        - subimage_height);             /* Subimage y-offset (from the        */
+    GL_CALL(glPixelStorei(GL_UNPACK_SKIP_ROWS, image_height - image_y_offset
+        - subimage_height));            /* Subimage y-offset (from the        */
                                         /* beginning of the image).           */
 
-    glTexSubImage3D(
+    GL_CALL(glTexSubImage3D(
         GL_TEXTURE_2D_ARRAY,            /* Target to which the texture is     */
                                         /* bound                              */
         0,                              /* Level-of-detail. 0 - base image    */
@@ -716,21 +709,13 @@ static stTexture* _load_texture_into_texture_2d_array(
         1,                              /* Depth of the texture subimage      */
         format,                         /* Format of the pixel data           */
         GL_UNSIGNED_BYTE,               /* Data type of the pixel data        */
-        (const void*)image_bytes);      /* Image pixels data pointer          */
+        (const void*)image_bytes));     /* Image pixels data pointer          */
 
     /* Restore previous used texture unit */
-    glActiveTexture(used_unit);
+    GL_CALL(glActiveTexture(used_unit));
 
     /* Restore previous bound texture 2d array */
-    //glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture);
-
-
-    GLenum error_id = glGetError();
-    if (error_id != GL_NO_ERROR)
-    {
-        LOG_ERROR("[glTexSubImage3D] returned %d.", error_id);
-        return NULL;
-    }
+    //GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture));
 
     stTexture* texture_ptr = m_malloc(sizeof(stTexture));
     stTextureInfo* texture_info = m_malloc(sizeof(stTextureInfo));
@@ -791,7 +776,7 @@ static int _get_max_texture_image_units(void)
 
     /* Get the maximum supported texture image units that can be used to access
        texture maps from the fragment shader */
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &res);
+    GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &res));
     return res;
 }
 
@@ -803,7 +788,7 @@ static int _get_max_3d_texture_size(void)
         return res;
 
     /* Get the maximum supported texture image size */
-    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &res);
+    GL_CALL(glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &res));
     return res;
 }
 
@@ -815,7 +800,7 @@ static int _get_max_array_texture_layers(void)
         return res;
 
     /* Get the maximum supported texture 2d array depth */
-    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &res);
+    GL_CALL(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &res));
     return res;
 }
 
@@ -826,13 +811,13 @@ static int _get_texture_2d_array_width(unsigned int id)
 
     /* Save the currently bound texture 2d array */
     int bound_texture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture);
+    GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture));
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, id);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_WIDTH, &res);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, id));
+    GL_CALL(glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_WIDTH, &res));
 
     /* Restore previous bound texture 2d array */
-    glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture));
 
     return res;
 }
@@ -844,13 +829,13 @@ static int _get_texture_2d_array_height(unsigned int id)
 
     /* Save the currently bound texture 2d array */
     int bound_texture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture);
+    GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture));
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, id);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_HEIGHT, &res);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, id));
+    GL_CALL(glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_HEIGHT, &res));
 
     /* Restore previous bound texture 2d array */
-    glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture));
 
     return res;
 }
@@ -862,13 +847,13 @@ static int _get_texture_2d_array_depth(unsigned int id)
 
     /* Save the currently bound texture 2d array */
     int bound_texture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture);
+    GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound_texture));
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, id);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &res);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, id));
+    GL_CALL(glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &res));
 
     /* Restore previous bound texture 2d array */
-    glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture);
+    GL_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, bound_texture));
 
     return res;
 }
