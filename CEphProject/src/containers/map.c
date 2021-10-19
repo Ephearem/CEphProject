@@ -26,6 +26,7 @@ typedef struct map
 
 
 /** @internal_prototypes -----------------------------------------------------*/
+static void _for_each_item_recursion(map_item* mi, void(*func)(int, void*));
 static void _map_insert_item_no_recursion(map_item** node, int key, void* value);
 static void _map_insert_item_recursion(map_item** node, int key, void* value);
 static map_item* _map_search_item_no_recursion(map_item* i, int key);
@@ -49,6 +50,9 @@ map* map_create(void)
 
 void map_destroy(map* m)
 {
+    if (NULL == m)
+        return;
+
     _map_destroy_branch(m->items);
     m_free(m);
 }
@@ -170,6 +174,29 @@ void map_erase(map* m, int key)
     return;
 }
 
+
+void map_for_each_item(map* m, void(*func)(int, void*))
+{
+    _for_each_item_recursion(m->items, func);
+}
+
+
+int map_get_size(map* m)
+{
+    if (NULL == m)
+        return 0;
+    return m->size;
+}
+
+
+static void _for_each_item_recursion(map_item* mi, void(*func)(int, void*))
+{
+    if (NULL == mi)
+        return;
+    _for_each_item_recursion(mi->left, func);
+    _for_each_item_recursion(mi->right, func);
+    func(mi->key, mi->data);
+}
 
 static void _map_insert_item_no_recursion(map_item** node, int key, void* value)
 {
