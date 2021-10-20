@@ -33,6 +33,9 @@ stTexture* t7 = NULL;
 stTexture* t8 = NULL;
 stTexture* t9 = NULL;
 
+stIndicesInfo* ii1 = NULL;
+stIndicesInfo* ii2 = NULL;
+stIndicesInfo* ii3 = NULL;
 
 
 /** @functions  ------------------------------------------------------------**/
@@ -53,7 +56,7 @@ void loop_iteration_callback(void)
         shader_set_uf_fvec2(3, "uf_model_size", size);
         shader_set_uf_int(3, "uf_txd_array_z_offset", t1->texture_info_ptr->z_offset);
         shader_set_uf_int(3, "uf_txd_unit", t1->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(ii1->mode, ii1->count, GL_UNSIGNED_INT, ii1->offset);
     }
     {
         vec2 pos = { 000.0f, 160.0f };
@@ -62,70 +65,7 @@ void loop_iteration_callback(void)
         shader_set_uf_fvec2(3, "uf_model_size", size);
         shader_set_uf_int(3, "uf_txd_array_z_offset", t2->texture_info_ptr->z_offset);
         shader_set_uf_int(3, "uf_txd_unit", t2->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 000.0f, 320.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t3->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t3->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 160.0f, 000.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t4->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t4->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 160.0f, 160.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t5->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t5->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 160.0f, 320.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t6->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t6->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 320.0f, 000.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t7->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t7->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 320.0f, 160.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t8->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t8->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    {
-        vec2 pos = { 320.0f, 320.0f };
-        shader_set_uf_fvec2(3, "uf_model_pos", pos);
-        vec2 size = { 150.0f, 150.0f };
-        shader_set_uf_fvec2(3, "uf_model_size", size);
-        shader_set_uf_int(3, "uf_txd_array_z_offset", t9->texture_info_ptr->z_offset);
-        shader_set_uf_int(3, "uf_txd_unit", t9->texture_info_ptr->unit);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(ii2->mode, ii2->count, GL_UNSIGNED_INT, ii2->offset);
     }
 }
 
@@ -142,37 +82,11 @@ int main(int argc, char* argv[], char* envp[])
 {
     window_init("CEphProject", 800, 600, 0, 0);
 
-    /*map_item map[] = {
-        {"str1", 1}, {"str2", 2}, {"str3", 3}, {"str4", 4},
-        {"str5", 5}, {"str6", 6}, {"str7", 7}, {"str8", 8}
-    };*/
-
-
     unsigned int shader_program = shader_create_program(
         "resources/shaders/txd_array_vertex.shader",
         "resources/shaders/txd_array_fragment.shader");
 
     shader_use_program(shader_program);
-
-    // Uncomment to check for memory leaks.
-    //while (1)
-    //{
-    //    t1 = tb_add_texture(TB_NO_GROUP, "resources/img/512x512_transp.png", 0, 0, 512, 512);
-    //    t2 = tb_add_texture(TB_NO_GROUP, "resources/img/256x256.jpg", 0, 0, 256, 256);
-    //    t3 = tb_add_texture(TB_NO_GROUP, "resources/img/256x256.jpg", 128, 128, 128, 128);
-    //    /* The next 3 textures are guaranteed to be placed on the same layer */
-    //    t4 = tb_add_texture(1, "resources/img/512x512_transp.png", 0, 0, 256, 256);
-    //    t5 = tb_add_texture(1, "resources/img/512x512_transp.png", 128, 0, 256, 256);
-    //    t6 = tb_add_texture(1, "resources/img/512x512_transp.png", 256, 0, 256, 256);
-    //    /* The next 3 textures are guaranteed to be placed on the same layer */
-    //    t7 = tb_add_texture(2, "resources/img/512x512_transp.png", 0, 256, 256, 256);
-    //    t8 = tb_add_texture(2, "resources/img/512x512_transp.png", 128, 256, 256, 256);
-    //    t9 = tb_add_texture(2, "resources/img/512x512_transp.png", 256, 256, 256, 256);
-    //    tb_build();
-    //    //tb_destroy();
-    //    int bp = 0;
-    //}
-
 
     /* The next 3 textures will be placed on any free space of any layer of any
        2d texture array */
@@ -189,11 +103,11 @@ int main(int argc, char* argv[], char* envp[])
     t9 = tb_add_texture(2, "resources/img/512x512_transp.png", 256, 256, 256, 256);
     /* The next 100 textures will be placed on any free space of any layer of
        any 2d texture array */
-    for (int i = 0; i < 100; i++)
-    {
-        tb_add_texture(0, "resources/img/512x512_transp.png",
-            rand() % 449, rand() % 449, 1 + rand() % 62, 1 + rand() % 62);
-    }
+    //for (int i = 0; i < 100; i++)
+    //{
+    //    tb_add_texture(0, "resources/img/512x512_transp.png",
+    //        rand() % 449, rand() % 449, 1 + rand() % 62, 1 + rand() % 62);
+    //}
     tb_build();
 
     /* Set up vertices and txd vertices data */
@@ -204,7 +118,20 @@ int main(int argc, char* argv[], char* envp[])
         0.0f, 1.0f,                     /* Bottom left                        */
         0.0f, 0.0f                      /* Top left                           */
     };
-
+    float vertices2[] =
+    {
+        0.5f, 0.0f,                     /* Top right                          */
+        0.5f, 0.5f,                     /* Bottom right                       */
+        0.0f, 0.5f,                     /* Bottom left                        */
+        0.0f, 0.0f                      /* Top left                           */
+    };
+    float vertices3[] =
+    {
+        1.0f, 0.5f,                     /* Top right                          */
+        1.0f, 1.0f,                     /* Bottom right                       */
+        0.5f, 1.0f,                     /* Bottom left                        */
+        0.5f, 0.5f                      /* Top left                           */
+    };
     float txd_vertices[] =
     {
         1.0f, 1.0f,                     /* Top right                          */
@@ -214,7 +141,12 @@ int main(int argc, char* argv[], char* envp[])
     };
 
     unsigned int va = va_create();
-    va_add_textured_rect(va, vertices, txd_vertices);
+    ii1 = va_shape_create(va);
+    ii2 = va_shape_create(va);
+    va_shape_add_textured_rect(va, ii1, vertices, txd_vertices);
+
+    va_shape_add_textured_rect(va, ii2, vertices2, t1->vertices);
+    va_shape_add_textured_rect(va, ii2, vertices3, t3->vertices);
     va_build(va);
 
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
