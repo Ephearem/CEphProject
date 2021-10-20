@@ -26,16 +26,16 @@ void list_destroy(list* l)
 }
 
 
-void list_push(list* l, void* data)
+list_node* list_push(list* l, void* data)
 {
     if (NULL == l)
-        return;
+        return NULL;
     if (NULL == l->nodes)
     {
         l->nodes = m_malloc(sizeof(list_node));
         l->nodes->data = data;
         l->nodes->next = NULL;
-        return;
+        return l->nodes;
     }
 
     list_node* cur = l->nodes;
@@ -45,6 +45,37 @@ void list_push(list* l, void* data)
     cur->next = (list_node*)m_malloc(sizeof(list_node));
     cur->next->data = data;
     cur->next->next = NULL;
+    return cur->next;
+}
+
+
+void list_erase(list* l, list_node* node)
+{
+    if (NULL == l)
+        return;
+    if (NULL == l->nodes)
+        return;
+
+    if (node == l->nodes)
+    {
+        l->nodes = l->nodes->next;
+        m_free(node);
+        return;
+    }
+
+    list_node* prev_node = l->nodes;
+    list_node* cur_node = l->nodes->next;
+    while (cur_node)
+    {
+        if (cur_node == node)
+        {
+            prev_node->next = cur_node->next;
+            m_free(cur_node);
+            return;
+        }
+        prev_node = cur_node;
+        cur_node = cur_node->next;
+    }
 }
 
 
@@ -62,4 +93,15 @@ int list_get_size(list* l)
         node = node->next;
     }
     return result;
+}
+
+
+int list_is_empty(list* l)
+{
+    if (NULL == l)
+        return 1;
+    if (NULL == l->nodes)
+        return 1;
+
+    return 0;
 }

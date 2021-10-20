@@ -27,8 +27,10 @@ typedef struct list
 
 list* list_create(void);
 void list_destroy(list* l);
-void list_push(list* l, void* data);
+list_node* list_push(list* l, void* data);
+void list_erase(list* l, list_node* node);
 int list_get_size(list* l);
+int list_is_empty(list* l);
 
 
 
