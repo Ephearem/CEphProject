@@ -499,6 +499,7 @@ static void _fit_texture(stTextureBuildData* tbd)
 
 static void _fit_texture_group(list* group_textures)
 {
+    static int is_new_layer_created = 0;
 
     int result = 0;
     stLayerBuildData* lbd_res = NULL;
@@ -555,8 +556,16 @@ static void _fit_texture_group(list* group_textures)
             }
         }
     }
-
+    if (is_new_layer_created)
+    {
+        LOG_ERROR("Can't place group %p on one layer of one unit of one array. Not enough storage.", group_textures);
+        // TODO: map_erase(_texture_groups_to_build, group_index).
+        // TODO: Remove created layer.
+        return;
+    }
     _create_layer_bd();                 // TODO: Stupid solution.
+    is_new_layer_created = 1;
+
     _fit_texture_group(group_textures); // TODO: Stupid solution.
 }
 
