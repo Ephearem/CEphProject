@@ -165,6 +165,7 @@ stTexture* tb_add_texture(int group_idx, const char* image_path, int subimg_x,
     texture_build_data_ptr->subimg_w = subimg_w;
     texture_build_data_ptr->subimg_h = subimg_h;
     texture_build_data_ptr->target = m_calloc(1, sizeof(stTexture));
+    texture_build_data_ptr->target->texture_info_ptr = m_calloc(1, sizeof(stTextureInfo));
 
     texture_build_data_ptr->layer_offset_x = -1; /* Will be filled in build() */
     texture_build_data_ptr->layer_offset_y = -1; /* Will be filled in build() */
@@ -278,9 +279,11 @@ void tb_build(void)
 
                 loaded_txd->texture_info_ptr->unit -= GL_TEXTURE0;
 
-                memcpy(tbd->target, loaded_txd, sizeof(stTexture));
+                memcpy(tbd->target->vertices, loaded_txd->vertices, sizeof(float) * 8);
+                memcpy(tbd->target->texture_info_ptr, loaded_txd->texture_info_ptr, sizeof(stTextureInfo));
+                m_free(loaded_txd->texture_info_ptr);
                 m_free(loaded_txd);
-
+                
                 /* Save the address of the created texture */
                 if (NULL == _created_textures)
                     _created_textures = list_create();
