@@ -11,7 +11,7 @@ typedef struct map_item map_item;
 typedef struct map_item
 {
     void* data;
-    int key;
+    size_t key;
     map_item* left;
     map_item* right;
 }map_item;
@@ -26,11 +26,11 @@ typedef struct map
 
 
 /** @internal_prototypes -----------------------------------------------------*/
-static void _for_each_item_recursion(map_item* mi, void(*func)(int, void*));
-static void _map_insert_item_no_recursion(map_item** node, int key, void* value);
-static void _map_insert_item_recursion(map_item** node, int key, void* value);
-static map_item* _map_search_item_no_recursion(map_item* i, int key);
-static map_item* _map_search_item_recursion(map_item* i, int key);
+static void _for_each_item_recursion(map_item* mi, void(*func)(size_t, void*));
+static void _map_insert_item_no_recursion(map_item** node, size_t key, void* value);
+static void _map_insert_item_recursion(map_item** node, size_t key, void* value);
+static map_item* _map_search_item_no_recursion(map_item* i, size_t key);
+static map_item* _map_search_item_recursion(map_item* i, size_t key);
 static void _map_destroy_branch(map_item* item);
 // static unsigned long hash_djb2(unsigned char* str)
 
@@ -58,7 +58,7 @@ void map_destroy(map* m)
 }
 
 
-void* map_search(map* m, int key)
+void* map_search(map* m, size_t key)
 {
     if (NULL == m)
         return NULL;
@@ -70,7 +70,7 @@ void* map_search(map* m, int key)
 }
 
 
-void map_insert(map* m, int key, void* value)
+void map_insert(map* m, size_t key, void* value)
 {
     _map_insert_item_no_recursion(&m->items, key, value);
     //_map_insert_item_recursion(&m->items, key, value);
@@ -78,7 +78,7 @@ void map_insert(map* m, int key, void* value)
 }
 
 
-void map_erase(map* m, int key)
+void map_erase(map* m, size_t key)
 {
     map_item* i = m->items;
     map_item* prev = NULL;
@@ -175,7 +175,7 @@ void map_erase(map* m, int key)
 }
 
 
-void map_for_each_item(map* m, void(*func)(int, void*))
+void map_for_each_item(map* m, void(*func)(size_t, void*))
 {
     _for_each_item_recursion(m->items, func);
 }
@@ -189,7 +189,7 @@ int map_get_size(map* m)
 }
 
 
-static void _for_each_item_recursion(map_item* mi, void(*func)(int, void*))
+static void _for_each_item_recursion(map_item* mi, void(*func)(size_t, void*))
 {
     if (NULL == mi)
         return;
@@ -198,7 +198,7 @@ static void _for_each_item_recursion(map_item* mi, void(*func)(int, void*))
     func(mi->key, mi->data);
 }
 
-static void _map_insert_item_no_recursion(map_item** node, int key, void* value)
+static void _map_insert_item_no_recursion(map_item** node, size_t key, void* value)
 {
     while (*node)
     {
@@ -215,7 +215,7 @@ static void _map_insert_item_no_recursion(map_item** node, int key, void* value)
 }
 
 
-static void _map_insert_item_recursion(map_item** node, int key, void* value)
+static void _map_insert_item_recursion(map_item** node, size_t key, void* value)
 {
     if (NULL == *node)
     {
@@ -241,7 +241,7 @@ static void _map_insert_item_recursion(map_item** node, int key, void* value)
 }
 
 
-static map_item* _map_search_item_no_recursion(map_item* i, int key)
+static map_item* _map_search_item_no_recursion(map_item* i, size_t key)
 {
     if (NULL == i)
         return NULL;
@@ -265,7 +265,7 @@ static map_item* _map_search_item_no_recursion(map_item* i, int key)
 }
 
 
-static map_item* _map_search_item_recursion(map_item* i, int key)
+static map_item* _map_search_item_recursion(map_item* i, size_t key)
 {
     if (NULL == i)
         return NULL;
