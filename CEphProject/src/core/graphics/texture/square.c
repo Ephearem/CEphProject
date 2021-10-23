@@ -27,21 +27,11 @@ stSquare* sq_create(int w, int h)
     }
     sq->w = w;
     sq->h = h;
-    sq->bytes = m_calloc(h, sizeof(unsigned char*));
+    sq->bytes = m_calloc(w * h, sizeof(unsigned char*));
     if (NULL == sq->bytes)
     {
         LOG_ERROR("// TODO:");
         return NULL;
-    }
-    for (int i = 0; i < h; i++)
-    {
-        sq->bytes[i] = (unsigned char*)m_calloc(1, w);
-        if (NULL == *((void**)sq->bytes + i))
-        {
-            LOG_ERROR("// TODO:");
-            return NULL;
-        }
-
     }
     return sq;
 }
@@ -49,10 +39,6 @@ stSquare* sq_create(int w, int h)
 
 void sq_destroy(stSquare* sq)
 {
-    for (int i = 0; i < sq->h; i++)
-    {
-        m_free(sq->bytes[i]);
-    }
     m_free(sq->bytes);
     m_free((void*)sq);
 }
@@ -89,7 +75,7 @@ void sq_use_rect(stSquare* sq, int x, int y, int w, int h)
     {
         for (int X = x; X < x + w; X++) /* For each pixel */
         {
-            sq->bytes[Y][X] = SQ_USED;
+            sq->bytes[Y * sq->w + X] = SQ_USED;
         }
     }
 }
@@ -129,7 +115,7 @@ void sq_unuse_rect(stSquare* sq, int x, int y, int w, int h)
     {
         for (int X = x; X < x + w; X++) /* For each pixel */
         {
-            sq->bytes[Y][X] = SQ_FREE;
+            sq->bytes[Y * sq->w + X] = SQ_FREE;
         }
     }
 }
@@ -168,30 +154,6 @@ void sq_get_free_rect(const stSquare* sq, int w, int h, int* out_x, int* out_y)
         return;
     }
 
-
-    //    for (int Y = 0; Y <= sq->h - h; Y++)     /* For each line */
-    //    {
-    //        for (int X = 0; X <= sq->w - w; X++) /* For each pixel */
-    //        {
-    //            for (int YY = 0; YY < h; YY++)
-    //            {
-    //                for (int XX = 0; XX < w; XX++)
-    //                {
-    //                    if (sq->bytes[Y + YY][X + XX] == 0xFF)
-    //                    {
-    //                        X += XX;
-    //                        Y += YY;
-    //                        goto l1;
-    //                    }
-    //                }
-    //            }
-    //            *out_x = X;
-    //            *out_y = Y;
-    //            return;
-    //        l1: continue;
-    //        }
-    //    }
-
         /* For each line */
     for (int Y = 0; Y <= sq->h - h; Y++)
     {
@@ -207,7 +169,7 @@ void sq_get_free_rect(const stSquare* sq, int w, int h, int* out_x, int* out_y)
             {
                 for (int XX = 0; XX < w; XX++)
                 {
-                    if (sq->bytes[Y + YY][X + XX] == SQ_USED)
+                    if (sq->bytes[(Y + YY) * sq->w + X + XX] == SQ_USED)
                     {
                         X += XX;
                         Y += YY;
@@ -250,7 +212,7 @@ void sq_get_used_rect(const stSquare* sq, int* out_w, int* out_h)
     {
         for (int x = 0; x < sq->w; x++)
         {
-            if (sq->bytes[y][x] == SQ_USED)
+            if (sq->bytes[y * sq->w + x] == SQ_USED)
             {
                 *out_h = y + 1;
                 goto y_completed;
@@ -263,7 +225,7 @@ y_completed:
     {
         for (int y = 0; y < sq->h; y++)
         {
-            if (sq->bytes[y][x] == SQ_USED)
+            if (sq->bytes[y * sq->w + x] == SQ_USED)
             {
                 *out_w = x + 1;
                 return;
@@ -278,9 +240,9 @@ void sq_dbg_print(const stSquare* sq, int x, int y, int w, int h)
 {
     for (int _y = y; _y < (y + h); _y++)
     {
-        for (int _x = x; x < (_x + w); _x++)
+        for (int _x = x; _x < (x + w); _x++)
         {
-            if (sq->bytes[_y][_x] == SQ_USED)
+            if (sq->bytes[_y * sq->w + _x] == SQ_USED)
                 printf("*");
 
             else
