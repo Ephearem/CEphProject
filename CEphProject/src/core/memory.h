@@ -12,6 +12,7 @@ void* m_calloc(size_t count, size_t size);
 void* m_realloc(void* ptr, size_t new_size);
 void m_free(void* ptr);
 
+int m_get_unreleased(void);
 
 
 #endif /* !MEMORY_H */
