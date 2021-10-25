@@ -62,7 +62,7 @@ typedef struct
 typedef struct
 {
     stSquare* square;                   /* Used/unused layer pixels           */
-    list* textures;                     /* List of 'stTexture' objects        */
+    list* textures;                     /* List of 'stTextureBuildData'       */
 }stLayerBuildData;
 
 
@@ -80,8 +80,8 @@ typedef struct
 
 /* Stores information about all textures to be built */
 static list* _textures_to_build = NULL; /* List of 'stTextureBuildData'       */
-static list* _arrays_to_build = NULL;   /* List of 'stArrayBuildData'         */
 static map* _texture_groups_to_build = NULL;
+static list* _arrays_to_build = NULL;   /* List of 'stArrayBuildData'         */
 static list* _group_indices = NULL;     /* List of 'int'                      */
 
 /* Stores pointers to created textures. Used to remove them from video
@@ -96,6 +96,10 @@ static unsigned int _create_texture_2d_array(unsigned int unit,
 static void _cleanup_build_data(void);
 static void _fit_texture(stTextureBuildData* tbd);
 static void _fit_texture_group(list* group_textures);
+static int _try_add_texture_on_layer(stTextureBuildData* tbd_what,
+    stLayerBuildData* lbd_where);
+static void _remove_texture_from_lyer(stTextureBuildData* tbd,
+    stLayerBuildData* lbd);
 static stLayerBuildData* _create_layer_bd(void);
 static stArrayBuildData* _create_array_bd(void);
 static stTexture* _load_texture_into_texture_2d_array(
@@ -472,27 +476,14 @@ static void _fit_texture(stTextureBuildData* tbd)
     for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
         stArrayBuildData* abd = abd_node->data;
-
+        int iter = 0;
         /* For each layer */
         for (list_node* lbd_node = abd->layers->nodes; lbd_node != NULL; lbd_node = lbd_node->next)
         {
             stLayerBuildData* lbd = lbd_node->data;
-            int layer_offset_x = -1;
-            int layer_offset_y = -1;
-            sq_get_free_rect(lbd->square, tbd->subimg_w, tbd->subimg_h, &layer_offset_x, &layer_offset_y);
-
-            /* If there is no place on this layer */
-            if ((layer_offset_x == -1) || (layer_offset_y == -1))
-                continue;
-
-            sq_use_rect(lbd->square, layer_offset_x, layer_offset_y, tbd->subimg_w, tbd->subimg_h);
-
-            tbd->layer_offset_x = layer_offset_x;
-            tbd->layer_offset_y = layer_offset_y;
-
-            list_push(lbd->textures, tbd);
-            
-            return;
+            int result = _try_add_texture_on_layer(tbd, lbd);
+            if (result == 0)
+                return;
         }
     }
     _create_layer_bd(); // TODO: Stupid solution.
@@ -504,8 +495,6 @@ static void _fit_texture_group(list* group_textures)
 {
     static int is_new_layer_created = 0;
 
-    int result = 0;
-    stLayerBuildData* lbd_res = NULL;
     /* For each array */
     for (list_node* abd_node = _arrays_to_build->nodes; abd_node != NULL; abd_node = abd_node->next)
     {
@@ -520,57 +509,85 @@ static void _fit_texture_group(list* group_textures)
             for (list_node* tbd_node = group_textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
             {
                 stTextureBuildData* tbd = tbd_node->data;
-                int layer_offset_x = -1;
-                int layer_offset_y = -1;
-                sq_get_free_rect(lbd->square, tbd->subimg_w, tbd->subimg_h, &layer_offset_x, &layer_offset_y);
 
-                /* If there is no place on this layer */
-                if ((layer_offset_x == SQ_FAIL) || (layer_offset_y == SQ_FAIL))
+                int result = _try_add_texture_on_layer(tbd, lbd);
+                if (result != 0)
                 {
                     /* Undo all layer changes */
                     for (list_node* _tbd_node = group_textures->nodes; _tbd_node != tbd_node; _tbd_node = _tbd_node->next)
                     {
                         stTextureBuildData* _tbd = _tbd_node->data;
-                        sq_unuse_rect(lbd->square, _tbd->layer_offset_x, _tbd->layer_offset_y, _tbd->subimg_w, _tbd->subimg_h);
-                        _tbd->layer_offset_x = 0;
-                        _tbd->layer_offset_y = 0;
-
-                        result = 0;
+                        _remove_texture_from_lyer(_tbd, lbd);
                     }
                     /* Try with the next layer */
                     break;
                 }
-
-                sq_use_rect(lbd->square, layer_offset_x, layer_offset_y, tbd->subimg_w, tbd->subimg_h);
-                tbd->layer_offset_x = layer_offset_x;
-                tbd->layer_offset_y = layer_offset_y;
-
-                lbd_res = lbd;
-                result = 1;
-            }
-            if (result == 1) /* Success */
-            {
-                for (list_node* tbd_node = group_textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
-                {
-                    stTextureBuildData* tbd = tbd_node->data;
-                    list_push(lbd_res->textures, tbd);
-                }
-                return;
+                if (tbd_node->next == NULL)
+                    return;
             }
         }
     }
-    // TODO:
-    //if (is_new_layer_created)
-    //{
-    //    LOG_ERROR("Can't place group %p on one layer of one unit of one array. Not enough storage.", group_textures);
-    //    // TODO: map_erase(_texture_groups_to_build, group_index).
-    //    // TODO: Remove created layer.
-    //    return;
-    //}
-    _create_layer_bd();                 // TODO: Stupid solution.
-    is_new_layer_created = 1;
 
-    _fit_texture_group(group_textures); // TODO: Stupid solution.
+    int result = 0;
+    stLayerBuildData* new_lbd = _create_layer_bd();
+    /* Try to fit all group textures on it */
+    for (list_node* tbd_node = group_textures->nodes; tbd_node != NULL; tbd_node = tbd_node->next)
+    {
+        stTextureBuildData* tbd = tbd_node->data;
+
+        result = _try_add_texture_on_layer(tbd, new_lbd);
+        if (result != 0)
+        {
+            /* Undo all layer changes */
+            for (list_node* _tbd_node = group_textures->nodes; _tbd_node != tbd_node; _tbd_node = _tbd_node->next)
+            {
+                stTextureBuildData* _tbd = _tbd_node->data;
+                _remove_texture_from_lyer(_tbd, new_lbd);
+            }
+        }
+    }
+
+    if (result != 0)
+    {
+        LOG_ERROR("Can't place group %p on one layer of one unit of one array. Not enough storage.", group_textures);
+        // TODO: map_erase(_texture_groups_to_build, group_index).
+        // TODO: Remove created layer.
+    }
+}
+
+
+static int _try_add_texture_on_layer(stTextureBuildData* tbd_what, stLayerBuildData* lbd_where)
+{
+    // TOOD: NULL-checks?
+    sq_get_free_rect(lbd_where->square, tbd_what->subimg_w, tbd_what->subimg_h,
+        &tbd_what->layer_offset_x, &tbd_what->layer_offset_y);
+    if ((tbd_what->layer_offset_x != SQ_FAIL) &&
+        (tbd_what->layer_offset_y != SQ_FAIL))
+    {
+        sq_use_rect(
+            lbd_where->square,
+            tbd_what->layer_offset_x, tbd_what->layer_offset_y,
+            tbd_what->subimg_w, tbd_what->subimg_h);
+        list_push(lbd_where->textures, tbd_what);
+        return 0;
+    }
+    return -1;
+}
+
+
+static void _remove_texture_from_lyer(stTextureBuildData* tbd, stLayerBuildData* lbd)
+{
+    for (list_node* lbd_texture = lbd->textures->nodes; lbd_texture != NULL; lbd_texture = lbd_texture->next)
+    {
+        stTextureBuildData* _tbd = lbd_texture->data;
+        if (_tbd == tbd)
+        {
+            sq_unuse_rect(lbd->square, tbd->layer_offset_x, tbd->layer_offset_y,
+                tbd->subimg_w, tbd->subimg_h);
+            list_erase(lbd->textures, lbd_texture);
+            return;
+        }
+    }
 }
 
 
@@ -608,8 +625,10 @@ static stArrayBuildData* _create_array_bd(void)
     int arrays_to_build_size = list_get_size(_arrays_to_build);
 
     if (arrays_to_build_size > _get_max_texture_image_units())
+    {
+        LOG_ERROR("Unable to create a new 2D texture array. All units are used up.");
         return NULL; // TODO: Implement re-bind arrays on units logic system.
-                     //       Or just log an error :)
+    }
 
     stArrayBuildData* abd = m_malloc(sizeof(stArrayBuildData));
     abd->unit = GL_TEXTURE0 + arrays_to_build_size;
